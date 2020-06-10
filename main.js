@@ -3,7 +3,9 @@
  */
 import kyOriginal from 'ky-universal';
 
-const DEFAULT_HEADERS = {Accept: 'application/ld+json, application/json'};
+export const DEFAULT_HEADERS = {
+  Accept: 'application/ld+json, application/json'
+};
 
 const ky = kyOriginal.create({headers: DEFAULT_HEADERS});
 
@@ -26,7 +28,9 @@ export const httpClient = new Proxy(ky, {
       } catch(e) {
         return _handleError(e);
       }
-      if(response.headers.get('content-type').includes('json')) {
+      // a 204 will not include a content-type header
+      const contentType = response.headers.get('content-type');
+      if(contentType && contentType.includes('json')) {
         response.data = await response.json();
       }
       return response;
@@ -46,7 +50,8 @@ async function _handleError(e) {
   // always move status up to the root of e
   e.status = e.response.status;
 
-  if(e.response.headers.get('content-type').includes('json')) {
+  const contentType = e.response.headers.get('content-type');
+  if(contentType && contentType.includes('json')) {
     const errorBody = await e.response.json();
     // the HTTPError received from ky has a generic message based on status
     // use that if the JSON body does not include a message
@@ -59,4 +64,5 @@ async function _handleError(e) {
 export default {
   httpClient,
   ky: kyOriginal,
+  DEFAULT_HEADERS,
 };

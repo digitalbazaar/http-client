@@ -7,7 +7,9 @@ import isNode from 'detect-node';
 describe('http-client API', () => {
   it('has proper exports', async () => {
     should.exist(dbHttpClient);
-    dbHttpClient.should.have.keys(['httpClient', 'ky']);
+    dbHttpClient.should.have.keys([
+      'httpClient', 'ky', 'DEFAULT_HEADERS'
+    ]);
     const {httpClient, ky} = dbHttpClient;
     httpClient.should.be.a('function');
     ky.should.be.a('function');
@@ -17,7 +19,8 @@ describe('http-client API', () => {
     let err;
     let response;
     try {
-      response = await httpClient.get('https://localhost:12345');
+      // hit a non-existent endpoint on the karma server to avoid CORS concerns
+      response = await httpClient.get('http://localhost:9876/does-not-exist');
     } catch(e) {
       err = e;
     }
@@ -25,10 +28,10 @@ describe('http-client API', () => {
     should.exist(err);
     if(isNode) {
       err.message.should.contain(
-        'request to https://localhost:12345/ failed, reason: connect ' +
-        'ECONNREFUSED 127.0.0.1:12345');
+        'request to http://localhost:9876/does-not-exist failed, reason: ' +
+        'connect ECONNREFUSED 127.0.0.1:9876');
     } else {
-      err.message.should.equal('Failed to fetch');
+      err.message.should.contain('Not Found');
     }
   });
   it('handles a get not found error', async () => {
