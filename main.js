@@ -1,7 +1,11 @@
 /*!
  * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
  */
-import ky from 'ky-universal';
+import kyOriginal from 'ky-universal';
+
+const DEFAULT_HEADERS = {Accept: 'application/ld+json, application/json'};
+
+const ky = kyOriginal.create({headers: DEFAULT_HEADERS});
 
 const proxyMethods = new Set([
   'get', 'post', 'push', 'patch', 'head', 'delete'
@@ -33,6 +37,9 @@ export const httpClient = new Proxy(ky, {
 async function _handleError(e) {
   // handle network errors that do not have a response
   if(!e.response) {
+    if(e.message === 'Failed to fetch') {
+      e.message = `${e.message}. Possible CORS error.`;
+    }
     throw e;
   }
 
@@ -51,5 +58,5 @@ async function _handleError(e) {
 
 export default {
   httpClient,
-  ky,
+  ky: kyOriginal,
 };

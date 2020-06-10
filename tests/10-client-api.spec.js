@@ -17,8 +17,7 @@ describe('http-client API', () => {
     let err;
     let response;
     try {
-      response = await httpClient.get(
-        'https://55d2da26-b555-4950-8e12-fdab8de488a3.com');
+      response = await httpClient.get('https://localhost:12345');
     } catch(e) {
       err = e;
     }
@@ -26,14 +25,29 @@ describe('http-client API', () => {
     should.exist(err);
     if(isNode) {
       err.message.should.contain(
-        'request to https://55d2da26-b555-4950-8e12-fdab8de488a3.com/ ' +
-        'failed, reason: getaddrinfo ENOTFOUND ' +
-        '55d2da26-b555-4950-8e12-fdab8de488a3.com');
+        'request to https://localhost:12345/ failed, reason: connect ' +
+        'ECONNREFUSED 127.0.0.1:12345');
     } else {
       err.message.should.equal('Failed to fetch');
     }
   });
   it('handles a get not found error', async () => {
+    const {httpClient} = dbHttpClient;
+    let err;
+    let response;
+    try {
+      response = await httpClient.get('http://httpbin.org/status/404');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.contain('NOT FOUND');
+    should.exist(err.response);
+    should.exist(err.response.status);
+    err.response.status.should.equal(404);
+  });
+  it('should give a meaningful CORS error', async () => {
     const {httpClient} = dbHttpClient;
     let err;
     let response;
@@ -50,9 +64,67 @@ describe('http-client API', () => {
       should.exist(err.response);
       should.exist(err.response.status);
       err.response.status.should.equal(404);
-    } else {
-      err.message.should.equal('Failed to fetch');
+    } else { // failed to fetch may commonly be due to an issue with CORS
+      err.message.should.equal('Failed to fetch. Possible CORS error.');
     }
+  });
+  it('succesfully makes request with default json headers', async () => {
+    const {httpClient} = dbHttpClient;
+    let err;
+    let response;
+    try {
+      // TODO: use another site/mock for error response
+      response = await httpClient.get('https://httpbin.org/headers');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {Accept: accept} = response.data.headers;
+    accept.should.equal('application/ld+json, application/json');
+  });
+  it('succesfully makes request with a header that is overriden', async () => {
+    const {httpClient} = dbHttpClient;
+    let err;
+    let response;
+    try {
+      // TODO: use another site/mock for error response
+      response = await httpClient.get('https://httpbin.org/headers', {
+        headers: {
+          accept: 'text/html'
+        }
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {Accept: accept} = response.data.headers;
+    accept.should.equal('text/html');
+  });
+  it('handles a successful get with JSON data', async () => {
+    const {httpClient} = dbHttpClient;
+    let err;
+    let response;
+    try {
+      // TODO: use another site/mock for error response
+      response = await httpClient.get('http://httpbin.org/json');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
   });
   it('handles a get not found error with JSON data', async () => {
     const {httpClient} = dbHttpClient;
@@ -61,11 +133,7 @@ describe('http-client API', () => {
     try {
       // TODO: use another site/mock for error response
       response = await httpClient.get(
-        'https://dog.ceo/api/breeds/image/DOESNOTEXIST', {
-          headers: {
-            accept: 'application/json',
-          }
-        });
+        'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
     } catch(e) {
       err = e;
     }
