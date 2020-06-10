@@ -25,7 +25,7 @@ describe('http-client API', () => {
     should.not.exist(response);
     should.exist(err);
     if(isNode) {
-      err.message.should.equal(
+      err.message.should.contain(
         'request to https://55d2da26-b555-4950-8e12-fdab8de488a3.com/ ' +
         'failed, reason: getaddrinfo ENOTFOUND ' +
         '55d2da26-b555-4950-8e12-fdab8de488a3.com');
