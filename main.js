@@ -8,7 +8,7 @@ const proxyMethods = new Set([
 ]);
 
 export const httpClient = new Proxy(ky, {
-  get: function(target, propKey) {
+  get(target, propKey) {
     const propValue = target[propKey];
 
     // only intercept particular methods
