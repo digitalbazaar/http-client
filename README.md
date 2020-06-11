@@ -31,7 +31,7 @@ try {
   return result.data;
 } catch(e) {
   // status is HTTP status code
-  // data is JSON error from the server
+  // data is JSON error from the server if available
   const {data, status} = e;
   throw e;
 }
