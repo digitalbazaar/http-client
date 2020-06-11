@@ -76,7 +76,6 @@ describe('http-client API', () => {
     let err;
     let response;
     try {
-      // TODO: use another site/mock for error response
       response = await httpClient.get('https://httpbin.org/headers');
     } catch(e) {
       err = e;
@@ -95,7 +94,6 @@ describe('http-client API', () => {
     let err;
     let response;
     try {
-      // TODO: use another site/mock for error response
       response = await httpClient.get('https://httpbin.org/headers', {
         headers: {
           accept: 'text/html'
@@ -118,7 +116,6 @@ describe('http-client API', () => {
     let err;
     let response;
     try {
-      // TODO: use another site/mock for error response
       response = await httpClient.get('http://httpbin.org/json');
     } catch(e) {
       err = e;
@@ -134,7 +131,6 @@ describe('http-client API', () => {
     let err;
     let response;
     try {
-      // TODO: use another site/mock for error response
       response = await httpClient.get(
         'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
     } catch(e) {
