@@ -14,26 +14,6 @@ describe('http-client API', () => {
     httpClient.should.be.a('function');
     ky.should.be.a('function');
   });
-  it('handles a network error', async () => {
-    const {httpClient} = dbHttpClient;
-    let err;
-    let response;
-    try {
-      // hit a non-existent endpoint on the karma server to avoid CORS concerns
-      response = await httpClient.get('http://localhost:9876/does-not-exist');
-    } catch(e) {
-      err = e;
-    }
-    should.not.exist(response);
-    should.exist(err);
-    if(isNode) {
-      err.message.should.contain(
-        'request to http://localhost:9876/does-not-exist failed, reason: ' +
-        'connect ECONNREFUSED 127.0.0.1:9876');
-    } else {
-      err.message.should.contain('Not Found');
-    }
-  });
   it('handles a get not found error', async () => {
     const {httpClient} = dbHttpClient;
     let err;
@@ -49,27 +29,6 @@ describe('http-client API', () => {
     should.exist(err.response);
     should.exist(err.response.status);
     err.response.status.should.equal(404);
-  });
-  it('should give a meaningful CORS error', async () => {
-    const {httpClient} = dbHttpClient;
-    let err;
-    let response;
-    try {
-      response = await httpClient.get(
-        'https://example.com/55d2da26-b555-4950-8e12-fdab8de488a3');
-    } catch(e) {
-      err = e;
-    }
-    should.not.exist(response);
-    should.exist(err);
-    if(isNode) {
-      err.message.should.contain('Not Found');
-      should.exist(err.response);
-      should.exist(err.response.status);
-      err.response.status.should.equal(404);
-    } else { // failed to fetch may commonly be due to an issue with CORS
-      err.message.should.equal('Failed to fetch. Possible CORS error.');
-    }
   });
   it('succesfully makes request with default json headers', async () => {
     const {httpClient} = dbHttpClient;
@@ -151,4 +110,41 @@ describe('http-client API', () => {
     err.data.message.should.contain('No route found');
     err.data.code.should.equal(404);
   });
+  if(isNode) {
+    describe('Nodejs execution context', () => {
+      it('handles a network error', async () => {
+        const {httpClient} = dbHttpClient;
+        let err;
+        let response;
+        try {
+          response = await httpClient.get(
+            'http://localhost:9876/does-not-exist');
+        } catch(e) {
+          err = e;
+        }
+        should.not.exist(response);
+        should.exist(err);
+        err.message.should.contain(
+          'request to http://localhost:9876/does-not-exist failed, reason: ' +
+          'connect ECONNREFUSED 127.0.0.1:9876');
+      });
+    });
+  } else {
+    describe('Browser execution context', () => {
+      it('should give a meaningful CORS error', async () => {
+        const {httpClient} = dbHttpClient;
+        let err;
+        let response;
+        try {
+          response = await httpClient.get('https://example.com');
+        } catch(e) {
+          err = e;
+        }
+        should.not.exist(response);
+        should.exist(err);
+        // failed to fetch may commonly be due to an issue with CORS
+        err.message.should.equal('Failed to fetch. Possible CORS error.');
+      });
+    });
+  }
 });
