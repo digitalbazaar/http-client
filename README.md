@@ -56,6 +56,27 @@ try {
 ```js
 try {
   result = await httpClient.post('http://httpbin.org/json', {
+    // `json` is the payload or body of the POST request
+    json: {some: 'data'}
+  });
+  return result.data;
+} catch(e) {
+  // status is HTTP status code
+  // data is JSON error from the server
+  const {data, status} = e;
+  throw e;
+}
+```
+
+#### POST a JSON payload in Node with a HTTP Agent
+```js
+import https from 'https';
+// use an agent to avoid self-signed certificate errors
+const agent = new https.agent({rejectUnauthorized: false});
+try {
+  result = await httpClient.post('http://httpbin.org/json', {
+    agent,
+    // `json` is the payload or body of the POST request
     json: {some: 'data'}
   });
   return result.data;
