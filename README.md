@@ -25,7 +25,7 @@ try {
 ```js
 import https from 'https';
 // use an agent to avoid self-signed certificate errors
-const agent = new https.agent({rejectUnauthorized: false});
+const agent = new https.Agent({rejectUnauthorized: false});
 try {
   result = await httpClient.get('http://httpbin.org/json', {agent});
   return result.data;
@@ -72,7 +72,7 @@ try {
 ```js
 import https from 'https';
 // use an agent to avoid self-signed certificate errors
-const agent = new https.agent({rejectUnauthorized: false});
+const agent = new https.Agent({rejectUnauthorized: false});
 try {
   result = await httpClient.post('http://httpbin.org/json', {
     agent,
