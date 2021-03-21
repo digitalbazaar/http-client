@@ -20,8 +20,8 @@
   ],
   "dependencies": {
     "esm": "^3.2.22",
-    "ky": "^0.20.0",
-    "ky-universal": "^0.7.0"
+    "ky": "^0.25.1",
+    "ky-universal": "^0.8.2"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
@@ -42,7 +42,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^4.0.2",
-    "mocha": "^7.2.0",
+    "mocha": "^8.3.2",
     "nyc": "^15.1.0",
     "webpack": "^4.43.0"
   },
