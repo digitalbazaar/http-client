@@ -1,5 +1,7 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 1.1.0 - 2021-04-06
+
 ### Changed
 - Updated `ky`, `ky-universal`, and `mocha` dependencies.
 
