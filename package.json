@@ -3,8 +3,28 @@
   "version": "1.1.1-0",
   "description": "An opinionated, isomorphic HTTP client.",
   "license": "BSD-3-Clause",
-  "main": "index.js",
+  "files": [
+    "dist",
+    "lib",
+    "rollup.config.js",
+    "build-dist.sh",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/esm/index.js"
+    }
+  },
   "scripts": {
+    "rollup": "rollup -c rollup.config.js",
+    "build": "npm run clear && npm run rollup && ./build-dist.sh",
+    "clear": "rimraf dist/ && mkdir dist",
+    "prepare": "npm run build",
+    "rebuild": "npm run clear && npm run build",
     "test": "npm run test-node",
     "test-node": "cross-env NODE_ENV=test mocha -r esm --preserve-symlinks -t 30000 -A -R ${REPORTER:-spec} --require tests/test-mocha.js tests/*.spec.js",
     "test-karma": "karma start karma.conf.js",
@@ -14,12 +34,7 @@
     "coverage-report": "nyc report",
     "lint": "eslint ."
   },
-  "files": [
-    "index.js",
-    "main.js"
-  ],
   "dependencies": {
-    "esm": "^3.2.22",
     "ky": "^0.25.1",
     "ky-universal": "^0.8.2"
   },
@@ -34,6 +49,7 @@
     "detect-node": "^2.0.4",
     "eslint": "^7.2.0",
     "eslint-config-digitalbazaar": "^2.5.0",
+    "esm": "^3.2.22",
     "karma": "^5.0.9",
     "karma-babel-preprocessor": "^8.0.1",
     "karma-chai": "^0.1.0",
@@ -44,6 +60,8 @@
     "karma-webpack": "^4.0.2",
     "mocha": "^8.3.2",
     "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.47.0",
     "webpack": "^4.43.0"
   },
   "repository": {
@@ -64,7 +82,6 @@
     "url": "https://github.com/digitalbazaar/http-client/issues"
   },
   "homepage": "https://github.com/digitalbazaar/http-client",
-  "module": "main.js",
   "engines": {
     "node": ">=10.0.0"
   },

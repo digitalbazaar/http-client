@@ -1,7 +1,7 @@
 /*!
  * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
  */
-import dbHttpClient from '..';
+import dbHttpClient from '../lib/index';
 import isNode from 'detect-node';
 
 describe('http-client API', () => {
@@ -30,7 +30,7 @@ describe('http-client API', () => {
     should.exist(err.response.status);
     err.response.status.should.equal(404);
   });
-  it('succesfully makes request with default json headers', async () => {
+  it('successfully makes request with default json headers', async () => {
     const {httpClient} = dbHttpClient;
     let err;
     let response;
