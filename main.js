@@ -32,6 +32,8 @@ export const httpClient = new Proxy(ky, {
       const contentType = response.headers.get('content-type');
       if(contentType && contentType.includes('json')) {
         response.data = await response.json();
+      } else {
+        response.data = await response.text();
       }
       return response;
     };
