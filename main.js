@@ -50,7 +50,6 @@ async function _handleResponse(target, thisArg, args) {
     // a 204 will not include a content-type header
     const contentType = response.headers.get('content-type');
     if(contentType && contentType.includes('json')) {
-      console.log('body parsed for', args[0]);
       response.data = await response.json();
     }
   }
