@@ -14,6 +14,17 @@ const proxyMethods = new Set([
 ]);
 
 export const httpClient = new Proxy(ky, {
+  async apply(target, thisArg, args) {
+    let method = 'get';
+    if(args[1] && typeof args[1] === 'object') {
+      method = args[1].method;
+    }
+    // only intercept particular methods
+    if(!(method && proxyMethods.has(method))) {
+      return target.apply(thisArg, args);
+    }
+    return _handleResponse(target, thisArg, args);
+  },
   get(target, propKey) {
     const propValue = target[propKey];
 
@@ -22,21 +33,29 @@ export const httpClient = new Proxy(ky, {
       return propValue;
     }
     return async function() {
-      let response;
-      try {
-        response = await propValue.apply(this, arguments);
-      } catch(e) {
-        return _handleError(e);
-      }
-      // a 204 will not include a content-type header
-      const contentType = response.headers.get('content-type');
-      if(contentType && contentType.includes('json')) {
-        response.data = await response.json();
-      }
-      return response;
+      return _handleResponse(propValue, this, arguments);
     };
   }
 });
+
+async function _handleResponse(target, thisArg, args) {
+  let response;
+  try {
+    response = await target.apply(thisArg, args);
+  } catch(e) {
+    return _handleError(e);
+  }
+  const {parseBody = true} = args[1] || {};
+  if(parseBody) {
+    // a 204 will not include a content-type header
+    const contentType = response.headers.get('content-type');
+    if(contentType && contentType.includes('json')) {
+      console.log('body parsed for', args[0]);
+      response.data = await response.json();
+    }
+  }
+  return response;
+}
 
 async function _handleError(e) {
   // handle network errors that do not have a response
