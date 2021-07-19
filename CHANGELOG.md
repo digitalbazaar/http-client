@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 1.2.0 - 2021-07-xx
+## 1.2.0 - 2021-07-19
 
 ### Added
 - Ensure that body parsing will occur for JSON content types
