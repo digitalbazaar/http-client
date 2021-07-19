@@ -14,17 +14,7 @@ const proxyMethods = new Set([
 ]);
 
 export const httpClient = new Proxy(ky, {
-  async apply(target, thisArg, args) {
-    let method = 'get';
-    if(args[1] && typeof args[1] === 'object') {
-      method = args[1].method;
-    }
-    // only intercept particular methods
-    if(!(method && proxyMethods.has(method))) {
-      return target.apply(thisArg, args);
-    }
-    return _handleResponse(target, thisArg, args);
-  },
+  apply: _handleResponse,
   get(target, propKey) {
     const propValue = target[propKey];
 
