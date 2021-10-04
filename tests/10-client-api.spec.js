@@ -28,9 +28,11 @@ describe('http-client API', () => {
     err.message.toUpperCase().should.contain('NOT FOUND');
     should.exist(err.response);
     should.exist(err.response.status);
+    should.exist(err.requestHost);
+    err.requestHost.should.equal('httpbin.org');
     err.response.status.should.equal(404);
   });
-  it('succesfully makes request with default json headers', async () => {
+  it('successfully makes request with default json headers', async () => {
     const {httpClient} = dbHttpClient;
     let err;
     let response;
@@ -48,7 +50,7 @@ describe('http-client API', () => {
     const {Accept: accept} = response.data.headers;
     accept.should.equal('application/ld+json, application/json');
   });
-  it('succesfully makes request with a header that is overriden', async () => {
+  it('successfully makes request with header that is overridden', async () => {
     const {httpClient} = dbHttpClient;
     let err;
     let response;
@@ -125,8 +127,10 @@ describe('http-client API', () => {
         should.not.exist(response);
         should.exist(err);
         err.message.should.contain(
-          'request to http://localhost:9876/does-not-exist failed, reason: ' +
+          'Request to host "localhost:9876" failed, reason: ' +
           'connect ECONNREFUSED 127.0.0.1:9876');
+        // check that the error message does not contain the full url
+        err.message.should.not.contain('/does-not-exist');
       });
     });
   } else {
@@ -143,7 +147,8 @@ describe('http-client API', () => {
         should.not.exist(response);
         should.exist(err);
         // failed to fetch may commonly be due to an issue with CORS
-        err.message.should.equal('Failed to fetch. Possible CORS error.');
+        err.message.should
+          .equal('Failed to fetch host "example.com". Possible CORS error.');
       });
     });
   }

@@ -30,10 +30,11 @@ export const httpClient = new Proxy(ky, {
 
 async function _handleResponse(target, thisArg, args) {
   let response;
+  const [url] = args;
   try {
     response = await target.apply(thisArg, args);
-  } catch(e) {
-    return _handleError(e);
+  } catch(error) {
+    return _handleError({error, url});
   }
   const {parseBody = true} = args[1] || {};
   if(parseBody) {
@@ -46,27 +47,48 @@ async function _handleResponse(target, thisArg, args) {
   return response;
 }
 
-async function _handleError(e) {
-  // handle network errors that do not have a response
-  if(!e.response) {
-    if(e.message === 'Failed to fetch') {
-      e.message = `${e.message}. Possible CORS error.`;
+/**
+ * @param {Error} error - Error thrown during http operation.
+ * @param {string} url - Target URL of the request.
+ * @return {Promise}
+ */
+async function _handleError({error, url}) {
+  const {host} = new URL(url);
+
+  error.requestHost = host;
+
+  // handle network errors and system errors that do not have a response
+  if(!error.response) {
+    if(error.message === 'Failed to fetch') {
+      error.message = `Failed to fetch host "${host}". Possible CORS error.`;
     }
-    throw e;
+    // ky's TimeoutError class
+    if(error.name === 'TimeoutError') {
+      error.message = `Request to host "${host}" timed out.`;
+    }
+
+    // node-fetch's FetchError (wraps Node.js system errors)
+    if(error.name === 'FetchError') {
+      // override error message to remove the full url
+      const reason = error.message.split('reason: ')[1];
+      error.message = `Request to host "${host}" failed, reason: ${reason}.`;
+    }
+
+    throw error;
   }
 
-  // always move status up to the root of e
-  e.status = e.response.status;
+  // always move status up to the root of error
+  error.status = error.response.status;
 
-  const contentType = e.response.headers.get('content-type');
+  const contentType = error.response.headers.get('content-type');
   if(contentType && contentType.includes('json')) {
-    const errorBody = await e.response.json();
+    const errorBody = await error.response.json();
     // the HTTPError received from ky has a generic message based on status
     // use that if the JSON body does not include a message
-    e.message = errorBody.message || e.message;
-    e.data = errorBody;
+    error.message = errorBody.message || error.message;
+    error.data = errorBody;
   }
-  throw e;
+  throw error;
 }
 
 export default {
