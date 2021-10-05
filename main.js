@@ -48,8 +48,9 @@ async function _handleResponse(target, thisArg, args) {
 }
 
 /**
- * @param {Error} error - Error thrown during http operation.
- * @param {string} url - Target URL of the request.
+ * @param {object} options - Options hashmap.
+ * @param {Error} options.error - Error thrown during http operation.
+ * @param {string} options.url - Target URL of the request.
  * @return {Promise}
  */
 async function _handleError({error, url}) {
