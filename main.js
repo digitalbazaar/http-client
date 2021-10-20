@@ -138,7 +138,9 @@ async function _handleAuthorizedRequest({
 } = {}) {
   const [url, options = {}] = args;
 
-  options.httpsAgent = options.httpsAgent || httpsAgent;
+  if(httpsAgent) {
+    options.httpsAgent = httpsAgent;
+  }
   options.headers = options.headers || {};
 
   let authzHeader = options.headers.Authorization;
