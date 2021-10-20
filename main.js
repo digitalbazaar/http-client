@@ -66,13 +66,6 @@ async function _handleError({error, url}) {
       error.message = `Request to "${url}" timed out.`;
     }
 
-    // node-fetch's FetchError (wraps Node.js system errors)
-    if(error.name === 'FetchError') {
-      // override error message to remove the full url
-      const reason = error.message.split('reason: ')[1];
-      error.message = `Request to "${url}" failed, reason: ${reason}.`;
-    }
-
     throw error;
   }
 
