@@ -89,16 +89,19 @@ async function _handleError({error, url}) {
  *
  * @param {object} options - Options hashmap.
  * @param {string} options.accessToken - Bearer access token.
+ * @param {object} [options.httpsAgent] - Optional HTTPS agent.
  *
  * @return {Proxy<httpClient>} Bearer token client instance.
  */
-export function createBearerTokenClient({accessToken} = {}) {
+export function createBearerTokenClient({accessToken, httpsAgent} = {}) {
   if(typeof accessToken !== 'string') {
     throw new TypeError('"accessToken" parameter is required.');
   }
   return new Proxy(httpClient, {
     async apply(target, thisArg, args) {
-      return _handleAuthorizedRequest({target, thisArg, args, accessToken});
+      return _handleAuthorizedRequest({
+        target, thisArg, args, accessToken, httpsAgent
+      });
     },
     get(target, propKey) {
       const propValue = target[propKey];
@@ -108,8 +111,10 @@ export function createBearerTokenClient({accessToken} = {}) {
         return propValue;
       }
       return async function() {
-        return _handleAuthorizedRequest(
-          {target: propValue, thisArg: this, args: arguments, accessToken});
+        return _handleAuthorizedRequest({
+          target: propValue, thisArg: this, args: arguments, accessToken,
+          httpsAgent
+        });
       };
     }
   });
@@ -124,13 +129,16 @@ export function createBearerTokenClient({accessToken} = {}) {
  * @param {object} options.thisArg - httpClient instance.
  * @param {Array<*>} options.args - Method arguments ([url, options]).
  * @param {string} options.accessToken - Access token.
+ * @param {object} [options.httpsAgent] - Optional HTTPS agent.
  *
  * @return {Promise} Resolves with httpClient method response.
  */
 async function _handleAuthorizedRequest({
-  target, thisArg, args, accessToken
+  target, thisArg, args, accessToken, httpsAgent
 } = {}) {
   const [url, options = {}] = args;
+
+  options.httpsAgent = options.httpsAgent || httpsAgent;
   options.headers = options.headers || {};
 
   let authzHeader = options.headers.Authorization;
