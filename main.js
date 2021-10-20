@@ -83,8 +83,73 @@ async function _handleError({error, url}) {
   throw error;
 }
 
+/**
+ * Creates a wrapped httpClient that adds an `Authorization: Bearer ...` header
+ * to all requests.
+ *
+ * @param {object} options - Options hashmap.
+ * @param {string} options.accessToken - Bearer access token.
+ *
+ * @return {Proxy<httpClient>} Bearer token client instance.
+ */
+export function createBearerTokenClient({accessToken} = {}) {
+  if(typeof accessToken !== 'string') {
+    throw new TypeError('"accessToken" parameter is required.');
+  }
+  return new Proxy(httpClient, {
+    async apply(target, thisArg, args) {
+      return _handleAuthorizedRequest({target, thisArg, args, accessToken});
+    },
+    get(target, propKey) {
+      const propValue = target[propKey];
+
+      // only intercept particular methods
+      if(!proxyMethods.has(propKey)) {
+        return propValue;
+      }
+      return async function() {
+        return _handleAuthorizedRequest(
+          {target: propValue, thisArg: this, args: arguments, accessToken});
+      };
+    }
+  });
+}
+
+/**
+ * Adds an `Authorization: Bearer ${accessToken}` header to the options,
+ * and passes through the request to the wrapped `httpClient` instance.
+ *
+ * @param {object} options - Options hashmap.
+ * @param {function} options.target - httpClient method ('get', 'post', etc).
+ * @param {object} options.thisArg - httpClient instance.
+ * @param {Array<*>} options.args - Method arguments ([url, options]).
+ * @param {string} options.accessToken - Access token.
+ *
+ * @return {Promise} Resolves with httpClient method response.
+ */
+async function _handleAuthorizedRequest({
+  target, thisArg, args, accessToken
+} = {}) {
+  const [url, options = {}] = args;
+  options.headers = options.headers || {};
+
+  let authzHeader = options.headers.Authorization;
+  if(!authzHeader) {
+    authzHeader = `Bearer ${accessToken}`;
+  } else {
+    // One or more Authorization: headers exist
+    authzHeader = Array.isArray(`Bearer ${accessToken}`) ?
+      authzHeader : [authzHeader];
+    authzHeader.push(`Bearer ${accessToken}`);
+  }
+  options.headers.Authorization = authzHeader;
+
+  return target.apply(thisArg, [url, options]);
+}
+
 export default {
   httpClient,
   ky: kyOriginal,
   DEFAULT_HEADERS,
+  createBearerTokenClient
 };
