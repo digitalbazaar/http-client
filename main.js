@@ -139,7 +139,7 @@ async function _handleAuthorizedRequest({
   const [url, options = {}] = args;
 
   if(httpsAgent) {
-    options.httpsAgent = httpsAgent;
+    options.agent = httpsAgent;
   }
   options.headers = options.headers || {};
 
