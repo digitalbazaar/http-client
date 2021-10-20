@@ -127,7 +127,7 @@ describe('http-client API', () => {
         should.not.exist(response);
         should.exist(err);
         err.message.should.contain(
-          'Request to "http://localhost:9876/does-not-exist" failed, reason: ' +
+          'request to http://localhost:9876/does-not-exist failed, reason: ' +
           'connect ECONNREFUSED 127.0.0.1:9876');
       });
     });
