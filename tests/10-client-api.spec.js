@@ -8,7 +8,7 @@ describe('http-client API', () => {
   it('has proper exports', async () => {
     should.exist(dbHttpClient);
     dbHttpClient.should.have.keys([
-      'httpClient', 'ky', 'DEFAULT_HEADERS'
+      'httpClient', 'ky', 'DEFAULT_HEADERS', 'createBearerTokenClient'
     ]);
     const {httpClient, ky} = dbHttpClient;
     httpClient.should.be.a('function');
@@ -150,4 +150,29 @@ describe('http-client API', () => {
       });
     });
   }
+});
+
+describe('Bearer Token httpClient wrapper', () => {
+  it('successfully adds an Authorization header to a request', async () => {
+    const {createBearerTokenClient} = dbHttpClient;
+    const accessToken = '12345';
+
+    const httpClient = createBearerTokenClient({accessToken});
+
+    let err;
+    let response;
+    try {
+      response = await httpClient.get('https://httpbin.org/headers');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {Authorization: authzHeader} = response.data.headers;
+    authzHeader.should.equal('Bearer 12345');
+  });
 });
