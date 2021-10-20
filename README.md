@@ -12,7 +12,7 @@ import {httpClient} from '@digitalbazaar/http-client';
 ```js
 import {createBearerTokenClient} from '@digitalbazaar/http-client';
 
-const httpClient = createBearerTokenClient({accessToken: '12345'});
+const httpClient = createBearerTokenClient({accessToken: '12345', httpsAgent});
 
 // subsequent http calls will include an 'Authorization: Bearer 12345' header
 ```
