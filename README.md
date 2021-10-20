@@ -8,6 +8,15 @@ An opinionated, isomorphic HTTP client.
 import {httpClient} from '@digitalbazaar/http-client';
 ```
 
+#### Import and initialize a Bearer Token client
+```js
+import {createBearerTokenClient} from '@digitalbazaar/http-client';
+
+const httpClient = createBearerTokenClient({accessToken: '12345'});
+
+// subsequent http calls will include an 'Authorization: Bearer 12345' header
+```
+
 #### GET a JSON response in the browser
 ```js
 try {
