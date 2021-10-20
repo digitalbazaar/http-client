@@ -54,25 +54,23 @@ async function _handleResponse(target, thisArg, args) {
  * @return {Promise}
  */
 async function _handleError({error, url}) {
-  const {host} = new URL(url);
-
-  error.requestHost = host;
+  error.requestUrl = url;
 
   // handle network errors and system errors that do not have a response
   if(!error.response) {
     if(error.message === 'Failed to fetch') {
-      error.message = `Failed to fetch host "${host}". Possible CORS error.`;
+      error.message = `Failed to fetch "${url}". Possible CORS error.`;
     }
     // ky's TimeoutError class
     if(error.name === 'TimeoutError') {
-      error.message = `Request to host "${host}" timed out.`;
+      error.message = `Request to "${url}" timed out.`;
     }
 
     // node-fetch's FetchError (wraps Node.js system errors)
     if(error.name === 'FetchError') {
       // override error message to remove the full url
       const reason = error.message.split('reason: ')[1];
-      error.message = `Request to host "${host}" failed, reason: ${reason}.`;
+      error.message = `Request to "${url}" failed, reason: ${reason}.`;
     }
 
     throw error;

@@ -3,18 +3,13 @@
 ## 2.0.0 -
 
 ### Changed
-- **BREAKING**: No longer includes full URL in `Possible CORS error.` type errors.
-  Instead, only includes the request's `host`.
-- **BREAKING**: For `TimeoutError`, changes the error message to include the
-  request's host. Was: `Request timed out`, 
+- **BREAKING**: Include full URL in `Possible CORS error.` type errors.
+- **BREAKING**: For `TimeoutError`, change the error message to include the
+  request's url. Was: `Request timed out`, 
   now: `Request to host "example.com" timed out.`
-- **BREAKING**: For Node.js `FetchError` system errors, no longer includes full 
-  URL. Instead, only includes the request's host.
-  Was: `request to http://localhost:9876/does-not-exist failed, reason: `,
-  now: `Request to host "localhost:9876" failed, reason: `.
 
 ### Added
-- Add a `.requestHost` property to all errors, for easier logging/diagnostics.
+- Add a `.requestUrl` property to all errors, for easier logging/diagnostics.
 
 ## 1.2.0 - 2021-07-19
 
