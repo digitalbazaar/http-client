@@ -6,7 +6,7 @@
 - **BREAKING**: Include full URL in `Possible CORS error.` type errors.
 - **BREAKING**: For `TimeoutError`, change the error message to include the
   request's url. Was: `Request timed out`, 
-  now: `Request to host "example.com" timed out.`
+  now: `Request to "example.com" timed out.`
 
 ### Added
 - Add a `.requestUrl` property to all errors, for easier logging/diagnostics.
