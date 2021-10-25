@@ -10,7 +10,7 @@ export const DEFAULT_HEADERS = {
 const ky = kyOriginal.create({headers: DEFAULT_HEADERS});
 
 const proxyMethods = new Set([
-  'get', 'post', 'push', 'patch', 'head', 'delete'
+  'get', 'post', 'put', 'push', 'patch', 'head', 'delete'
 ]);
 
 export const httpClient = new Proxy(ky, {
