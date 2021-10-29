@@ -7,9 +7,12 @@
 - **BREAKING**: For `TimeoutError`, change the error message to include the
   request's url. Was: `Request timed out`, 
   now: `Request to "example.com" timed out.`
+- **BREAKING**: Remove default exports.
 
 ### Added
 - Add a `.requestUrl` property to all errors, for easier logging/diagnostics.
+- Add `PUT` to allowed proxied methods.
+- Add `customClient()` factory method (useful to override default headers etc).
 
 ## 1.2.0 - 2021-07-19
 
