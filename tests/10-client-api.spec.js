@@ -1,21 +1,18 @@
 /*!
  * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
  */
-import dbHttpClient from '..';
+import {ky, httpClient, DEFAULT_HEADERS, customClient} from '..';
 import isNode from 'detect-node';
 
 describe('http-client API', () => {
   it('has proper exports', async () => {
-    should.exist(dbHttpClient);
-    dbHttpClient.should.have.keys([
-      'httpClient', 'ky', 'DEFAULT_HEADERS', 'createBearerTokenClient'
-    ]);
-    const {httpClient, ky} = dbHttpClient;
+    should.exist(ky);
+    DEFAULT_HEADERS.should.have.keys(['Accept']);
     httpClient.should.be.a('function');
     ky.should.be.a('function');
+    customClient.should.be.a('function');
   });
   it('handles a get not found error', async () => {
-    const {httpClient} = dbHttpClient;
     let err;
     let response;
     try {
@@ -33,7 +30,6 @@ describe('http-client API', () => {
     err.response.status.should.equal(404);
   });
   it('successfully makes request with default json headers', async () => {
-    const {httpClient} = dbHttpClient;
     let err;
     let response;
     try {
@@ -51,7 +47,27 @@ describe('http-client API', () => {
     accept.should.equal('application/ld+json, application/json');
   });
   it('successfully makes request with header that is overridden', async () => {
-    const {httpClient} = dbHttpClient;
+    let err;
+    let response;
+    try {
+      response = await httpClient.get('https://httpbin.org/headers', {
+        headers: {
+          accept: 'text/html'
+        }
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {Accept: accept} = response.data.headers;
+    accept.should.equal('text/html');
+  });
+  it('can use create() to provide default headers', async () => {
     let err;
     let response;
     try {
@@ -73,7 +89,6 @@ describe('http-client API', () => {
     accept.should.equal('text/html');
   });
   it('handles a successful get with JSON data', async () => {
-    const {httpClient} = dbHttpClient;
     let err;
     let response;
     try {
@@ -88,7 +103,6 @@ describe('http-client API', () => {
     response.status.should.equal(200);
   });
   it('handles a get not found error with JSON data', async () => {
-    const {httpClient} = dbHttpClient;
     let err;
     let response;
     try {
@@ -115,7 +129,6 @@ describe('http-client API', () => {
   if(isNode) {
     describe('Nodejs execution context', () => {
       it('handles a network error', async () => {
-        const {httpClient} = dbHttpClient;
         let err;
         let response;
         try {
@@ -134,7 +147,6 @@ describe('http-client API', () => {
   } else {
     describe('Browser execution context', () => {
       it('should give a meaningful CORS error', async () => {
-        const {httpClient} = dbHttpClient;
         let err;
         let response;
         try {
@@ -152,12 +164,13 @@ describe('http-client API', () => {
   }
 });
 
-describe('Bearer Token httpClient wrapper', () => {
-  it('successfully adds an Authorization header to a request', async () => {
-    const {createBearerTokenClient} = dbHttpClient;
+describe('customClient', () => {
+  it('adds an Authorization header to all requests', async () => {
     const accessToken = '12345';
 
-    const httpClient = createBearerTokenClient({accessToken});
+    const httpClient = customClient({
+      headers: {Authorization: `Bearer ${accessToken}`}
+    });
 
     let err;
     let response;

@@ -5,16 +5,23 @@ An opinionated, isomorphic HTTP client.
 
 #### Import httpClient
 ```js
+import https from 'https';
 import {httpClient} from '@digitalbazaar/http-client';
 ```
 
-#### Import and initialize a Bearer Token client
+#### Import and initialize a custom Bearer Token client
 ```js
-import {createBearerTokenClient} from '@digitalbazaar/http-client';
+import {customClient} from '@digitalbazaar/http-client';
 
-const httpClient = createBearerTokenClient({accessToken: '12345', httpsAgent});
+const httpsAgent = new https.Agent({rejectUnauthorized: false});
 
-// subsequent http calls will include an 'Authorization: Bearer 12345' header
+const accessToken = '12345';
+const headers = {Authorization: `Bearer ${accessToken}`};
+
+const httpClient = customClient({headers, httpsAgent});
+
+// subsequent http calls will include an 'Authorization: Bearer 12345' header,
+// and use the provided httpsAgent
 ```
 
 #### GET a JSON response in the browser

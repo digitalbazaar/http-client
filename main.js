@@ -3,30 +3,56 @@
  */
 import kyOriginal from 'ky-universal';
 
+export const ky = kyOriginal;
+
 export const DEFAULT_HEADERS = {
   Accept: 'application/ld+json, application/json'
 };
-
-const ky = kyOriginal.create({headers: DEFAULT_HEADERS});
 
 const proxyMethods = new Set([
   'get', 'post', 'put', 'push', 'patch', 'head', 'delete'
 ]);
 
-export const httpClient = new Proxy(ky, {
-  apply: _handleResponse,
-  get(target, propKey) {
-    const propValue = target[propKey];
+/**
+ * Returns a custom httpClient instance. Used to specify default headers and
+ * other default overrides.
+ *
+ * @param {object} [options={}] - Options hashmap.
+ * @param {object} [options.headers={}] - Default header overrides.
+ * @param {object} [options.httpsAgent] - Optional HTTPS agent.
+ * @param {object} [options.params] - Other default overrides.
+ *
+ * @return {httpClient} Custom httpClient instance.
+ */
+export function customClient({headers = {}, httpsAgent, ...params} = {}) {
+  // Ensure default headers, allow overrides
+  const ky = kyOriginal.create({
+    headers: {...DEFAULT_HEADERS, ...headers},
+    agent: httpsAgent,
+    ...params
+  });
+  return _createProxy({ky});
+}
 
-    // only intercept particular methods
-    if(!proxyMethods.has(propKey)) {
-      return propValue;
+export const httpClient = _createProxy(
+  {ky: kyOriginal.create({headers: DEFAULT_HEADERS})});
+
+function _createProxy({ky} = {}) {
+  return new Proxy(ky, {
+    apply: _handleResponse,
+    get(target, propKey) {
+      const propValue = target[propKey];
+
+      // only intercept particular methods
+      if(!proxyMethods.has(propKey)) {
+        return propValue;
+      }
+      return async function() {
+        return _handleResponse(propValue, this, arguments);
+      };
     }
-    return async function() {
-      return _handleResponse(propValue, this, arguments);
-    };
-  }
-});
+  });
+}
 
 async function _handleResponse(target, thisArg, args) {
   let response;
@@ -82,84 +108,3 @@ async function _handleError({error, url}) {
   }
   throw error;
 }
-
-/**
- * Creates a wrapped httpClient that adds an `Authorization: Bearer ...` header
- * to all requests.
- *
- * @param {object} options - Options hashmap.
- * @param {string} options.accessToken - Bearer access token.
- * @param {object} [options.httpsAgent] - Optional HTTPS agent.
- *
- * @return {Proxy<httpClient>} Bearer token client instance.
- */
-export function createBearerTokenClient({accessToken, httpsAgent} = {}) {
-  if(typeof accessToken !== 'string') {
-    throw new TypeError('"accessToken" parameter is required.');
-  }
-  return new Proxy(httpClient, {
-    async apply(target, thisArg, args) {
-      return _handleAuthorizedRequest({
-        target, thisArg, args, accessToken, httpsAgent
-      });
-    },
-    get(target, propKey) {
-      const propValue = target[propKey];
-
-      // only intercept particular methods
-      if(!proxyMethods.has(propKey)) {
-        return propValue;
-      }
-      return async function() {
-        return _handleAuthorizedRequest({
-          target: propValue, thisArg: this, args: arguments, accessToken,
-          httpsAgent
-        });
-      };
-    }
-  });
-}
-
-/**
- * Adds an `Authorization: Bearer ${accessToken}` header to the options,
- * and passes through the request to the wrapped `httpClient` instance.
- *
- * @param {object} options - Options hashmap.
- * @param {function} options.target - httpClient method ('get', 'post', etc).
- * @param {object} options.thisArg - httpClient instance.
- * @param {Array<*>} options.args - Method arguments ([url, options]).
- * @param {string} options.accessToken - Access token.
- * @param {object} [options.httpsAgent] - Optional HTTPS agent.
- *
- * @return {Promise} Resolves with httpClient method response.
- */
-async function _handleAuthorizedRequest({
-  target, thisArg, args, accessToken, httpsAgent
-} = {}) {
-  const [url, options = {}] = args;
-
-  if(httpsAgent) {
-    options.agent = httpsAgent;
-  }
-  options.headers = options.headers || {};
-
-  let authzHeader = options.headers.Authorization;
-  if(!authzHeader) {
-    authzHeader = `Bearer ${accessToken}`;
-  } else {
-    // One or more Authorization: headers exist
-    authzHeader = Array.isArray(`Bearer ${accessToken}`) ?
-      authzHeader : [authzHeader];
-    authzHeader.push(`Bearer ${accessToken}`);
-  }
-  options.headers.Authorization = authzHeader;
-
-  return target.apply(thisArg, [url, options]);
-}
-
-export default {
-  httpClient,
-  ky: kyOriginal,
-  DEFAULT_HEADERS,
-  createBearerTokenClient
-};
