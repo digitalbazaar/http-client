@@ -24,7 +24,7 @@ const proxyMethods = new Set([
  *
  * @return {httpClient} Custom httpClient instance.
  */
-export function customClient({headers = {}, httpsAgent, ...params} = {}) {
+export function proxyExtend({headers = {}, httpsAgent, ...params} = {}) {
   // Ensure default headers, allow overrides
   const ky = kyOriginal.create({
     headers: {...DEFAULT_HEADERS, ...headers},
@@ -38,7 +38,7 @@ export const httpClient = _createProxy(
   {ky: kyOriginal.create({headers: DEFAULT_HEADERS})});
 
 function _createProxy({ky} = {}) {
-  return new Proxy(ky, {
+  const clientProxy = new Proxy(ky, {
     apply: _handleResponse,
     get(target, propKey) {
       const propValue = target[propKey];
@@ -52,6 +52,8 @@ function _createProxy({ky} = {}) {
       };
     }
   });
+  clientProxy.extend = proxyExtend;
+  return clientProxy;
 }
 
 async function _handleResponse(target, thisArg, args) {
