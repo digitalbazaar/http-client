@@ -11,14 +11,14 @@ import {httpClient} from '@digitalbazaar/http-client';
 
 #### Import and initialize a custom Bearer Token client
 ```js
-import {customClient} from '@digitalbazaar/http-client';
+import {httpClient} from '@digitalbazaar/http-client';
 
 const httpsAgent = new https.Agent({rejectUnauthorized: false});
 
 const accessToken = '12345';
 const headers = {Authorization: `Bearer ${accessToken}`};
 
-const httpClient = customClient({headers, httpsAgent});
+const client = httpClient.extend({headers, httpsAgent});
 
 // subsequent http calls will include an 'Authorization: Bearer 12345' header,
 // and use the provided httpsAgent

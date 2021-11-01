@@ -1,7 +1,7 @@
 /*!
  * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
  */
-import {ky, httpClient, DEFAULT_HEADERS, customClient} from '..';
+import {ky, httpClient, DEFAULT_HEADERS} from '..';
 import isNode from 'detect-node';
 
 describe('http-client API', () => {
@@ -10,7 +10,6 @@ describe('http-client API', () => {
     DEFAULT_HEADERS.should.have.keys(['Accept']);
     httpClient.should.be.a('function');
     ky.should.be.a('function');
-    customClient.should.be.a('function');
   });
   it('handles a get not found error', async () => {
     let err;
@@ -164,18 +163,18 @@ describe('http-client API', () => {
   }
 });
 
-describe('customClient', () => {
+describe('extend (custom client)', () => {
   it('adds an Authorization header to all requests', async () => {
     const accessToken = '12345';
 
-    const httpClient = customClient({
+    const client = httpClient.extend({
       headers: {Authorization: `Bearer ${accessToken}`}
     });
 
     let err;
     let response;
     try {
-      response = await httpClient.get('https://httpbin.org/headers');
+      response = await client.get('https://httpbin.org/headers');
     } catch(e) {
       err = e;
     }
