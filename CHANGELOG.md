@@ -12,6 +12,8 @@
 ### Added
 - Add a `.requestUrl` property to all errors, for easier logging/diagnostics.
 - Add `PUT` to allowed proxied methods.
+
+### Fixed
 - Fix `.extend()` to return a proxy (with default headers, etc).
 
 ## 1.2.0 - 2021-07-19
