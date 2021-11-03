@@ -34,8 +34,7 @@ function _proxyExtend({headers = {}, httpsAgent, ...params} = {}) {
   return _createProxy({ky});
 }
 
-export const httpClient = _createProxy(
-  {ky: kyOriginal.create({headers: DEFAULT_HEADERS})});
+export const httpClient = _proxyExtend();
 
 function _createProxy({ky} = {}) {
   const clientProxy = new Proxy(ky, {
