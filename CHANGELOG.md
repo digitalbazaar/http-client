@@ -1,11 +1,11 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 2.0.0 -
+## 2.0.0 - 2021-11-15
 
 ### Changed
 - **BREAKING**: Include full URL in `Possible CORS error.` type errors.
 - **BREAKING**: For `TimeoutError`, change the error message to include the
-  request's url. Was: `Request timed out`, 
+  request's url. Was: `Request timed out`,
   now: `Request to "example.com" timed out.`
 - **BREAKING**: Remove default exports.
 
