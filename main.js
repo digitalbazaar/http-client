@@ -19,16 +19,14 @@ const proxyMethods = new Set([
  *
  * @param {object} [options={}] - Options hashmap.
  * @param {object} [options.headers={}] - Default header overrides.
- * @param {object} [options.httpsAgent] - Optional HTTPS agent.
  * @param {object} [options.params] - Other default overrides.
  *
  * @return {httpClient} Custom httpClient instance.
  */
-function _proxyExtend({headers = {}, httpsAgent, ...params} = {}) {
+function _proxyExtend({headers = {}, ...params} = {}) {
   // Ensure default headers, allow overrides
   const ky = kyOriginal.create({
     headers: {...DEFAULT_HEADERS, ...headers},
-    agent: httpsAgent,
     ...params
   });
   return _createProxy({ky});

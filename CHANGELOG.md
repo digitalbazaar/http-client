@@ -1,5 +1,10 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 2.0.1 -
+
+### Fixed
+- Remove unused `httpAgent` param.
+
 ## 2.0.0 - 2021-11-15
 
 ### Changed
