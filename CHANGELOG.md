@@ -1,5 +1,8 @@
 # @digitalbazaar/http-client ChangeLog
 
+### Changed
+- Convert to module with CommonJS support.
+
 ## 1.2.0 - 2021-07-19
 
 ### Added

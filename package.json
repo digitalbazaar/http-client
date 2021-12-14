@@ -3,7 +3,11 @@
   "version": "1.2.1-0",
   "description": "An opinionated, isomorphic HTTP client.",
   "license": "BSD-3-Clause",
-  "main": "index.js",
+  "type": "module",
+  "exports": {
+    "import": "./main.js",
+    "require": "./index.cjs"
+  },
   "scripts": {
     "test": "npm run test-node",
     "test-node": "cross-env NODE_ENV=test mocha -r esm --preserve-symlinks -t 30000 -A -R ${REPORTER:-spec} --require tests/test-mocha.js tests/*.spec.js",
@@ -64,9 +68,8 @@
     "url": "https://github.com/digitalbazaar/http-client/issues"
   },
   "homepage": "https://github.com/digitalbazaar/http-client",
-  "module": "main.js",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=12.7.0"
   },
   "nyc": {
     "exclude": [
