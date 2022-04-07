@@ -1,5 +1,10 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 3.0.0 - 2022-04-07
+
+### Changed
+- **BREAKING**: Change `main.js` to a native node ECMAScript Module as `main.mjs`, index now exports `default` object.
+
 ## 2.0.1 - 2021-12-01
 
 ### Fixed

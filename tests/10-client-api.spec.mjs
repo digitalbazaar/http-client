@@ -1,8 +1,10 @@
 /*!
  * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
  */
-import {ky, httpClient, DEFAULT_HEADERS} from '..';
+import * as main from '../main.mjs';
 import isNode from 'detect-node';
+
+const {ky, httpClient, DEFAULT_HEADERS} = main
 
 describe('http-client API', () => {
   it('has proper exports', async () => {
@@ -140,7 +142,7 @@ describe('http-client API', () => {
         should.exist(err);
         err.message.should.contain(
           'request to http://localhost:9876/does-not-exist failed, reason: ' +
-          'connect ECONNREFUSED 127.0.0.1:9876');
+          'connect ECONNREFUSED');
       });
     });
   } else {
