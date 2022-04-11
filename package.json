@@ -18,6 +18,7 @@
     "build": "npm run clear && npm run rollup",
     "clear": "rimraf dist/ && mkdir dist",
     "prepare": "npm run build",
+    "postinstall": "npm run build",
     "rebuild": "npm run clear && npm run build",
     "test": "npm run test-node",
     "test-node": "cross-env NODE_ENV=test mocha --preserve-symlinks -t 30000 -A -R ${REPORTER:-spec} --require tests/test-mocha.js tests/*.spec.js",
@@ -29,7 +30,8 @@
     "lint": "eslint ."
   },
   "files": [
-    "index.js"
+    "lib/*",
+    "dist/*"
   ],
   "dependencies": {
     "ky": "^0.25.1",
