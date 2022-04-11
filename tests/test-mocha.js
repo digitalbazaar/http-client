@@ -1,2 +1,2 @@
-import chai from 'chai';
-global.should = chai.should();
+import {should} from 'chai';
+global.should = should();
