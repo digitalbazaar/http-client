@@ -76,7 +76,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/http-client",
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=14.14.0"
   },
   "nyc": {
     "exclude": [
