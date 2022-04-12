@@ -4,7 +4,7 @@
 
 ### Changed
 - **BREAKING**: Convert to module (ESM) internally and use conditional exports
-  to export a directory that has an entry point for CommonJs.
+  to export a directory that has an entry point for CommonJS.
 - Use `ky@0.30` and `ky-universal@0.10.1`.
 
 ### Removed
