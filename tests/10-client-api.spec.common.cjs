@@ -31,6 +31,24 @@ describe('http-client API', () => {
     err.requestUrl.should.equal('http://httpbin.org/status/404');
     err.response.status.should.equal(404);
   });
+  it('handles a TimeoutError error', async () => {
+    let err;
+    let response;
+    try {
+      response = await httpClient.get('http://httpbin.org/delay/2', {
+        timeout: 1000,
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.equal(
+      'Request to "http://httpbin.org/delay/2" timed out.');
+    should.not.exist(err.response);
+    should.exist(err.requestUrl);
+    err.requestUrl.should.equal('http://httpbin.org/delay/2');
+  });
   it('successfully makes request with default json headers', async () => {
     let err;
     let response;
