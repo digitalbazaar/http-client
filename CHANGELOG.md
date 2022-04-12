@@ -1,5 +1,15 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 3.0.0 - 2022-TBD
+
+### Changed
+- **BREAKING**: Convert to module (ESM) internally and use conditional exports
+  to export a directory that has an entry point for CommonJs.
+- Use `ky@0.30` and `ky-universal@0.10.1`.
+
+### Removed
+- **BREAKING**: Drop support for node 10 and 12.
+
 ## 2.0.1 - 2021-12-01
 
 ### Fixed
