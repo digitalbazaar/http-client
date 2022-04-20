@@ -1,11 +1,13 @@
 /*!
- * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {ky, httpClient, DEFAULT_HEADERS} from '../lib/index.js';
+import {kyPromise, httpClient, DEFAULT_HEADERS} from '../lib/index.js';
 import isNode from 'detect-node';
 
 describe('http-client API', () => {
+  let ky;
   it('has proper exports', async () => {
+    ky = await kyPromise;
     should.exist(ky);
     DEFAULT_HEADERS.should.have.keys(['Accept']);
     httpClient.should.be.a('function');

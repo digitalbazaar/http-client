@@ -6,6 +6,22 @@
 - **BREAKING**: Convert to module (ESM) internally and use conditional exports
   to export a directory that has an entry point for CommonJS.
 - Use `ky@0.30` and `ky-universal@0.10.1`.
+- **BREAKING**: Only specific methods and properties are proxied from `ky`
+  on `httpClient` instances now. This includes the same set of functions
+  that were proxied in previous versions:
+
+  `get`, `post`, `put`, `push`, `patch`, `head`, `delete`
+
+  With the same caveat that these functions return a promise that resolves
+  to the response (just like in previous versions, but different from `ky`
+  which returns the response synchronously). This version also proxies
+  `create` and `extend`, where `extend` now properly inherits options from
+  the parent `ky` instance. The `stop` property is also proxied, but returns
+  a promise that resolves to the `ky.stop` signal. This change was made because
+  the latest version of `ky` is ESM-only -- and to continue supporting a CJS
+  build, it meant importing the library dynamically. Therefore, the `ky`
+  instance must settle before it can be used -- requiring all `httpClient`
+  methods and accessors to be asynchronous.
 
 ### Removed
 - **BREAKING**: Drop support for node 10 and 12.
