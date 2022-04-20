@@ -1,5 +1,14 @@
 import pkg from './package.json';
 
+function preserveDynamicImportPlugin() {
+  return {
+    name: 'preserve-dynamic-import',
+    renderDynamicImport() {
+      return {left: 'import(', right: ')'};
+    }
+  };
+}
+
 export default [
   {
     input: './lib/index.js',
@@ -9,6 +18,7 @@ export default [
         format: 'cjs'
       }
     ],
+    plugins: [preserveDynamicImportPlugin()],
     external: Object.keys(pkg.dependencies).concat(['crypto', 'util'])
   }
 ];
