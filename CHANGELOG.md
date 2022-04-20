@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 3.0.0 - 2022-TBD
+## 3.0.0 - 2022-04-20
 
 ### Changed
 - **BREAKING**: Convert to module (ESM) internally and use conditional exports
