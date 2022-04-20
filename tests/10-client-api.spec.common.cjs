@@ -159,9 +159,12 @@ describe('http-client API', () => {
         }
         should.not.exist(response);
         should.exist(err);
-        err.message.should.contain(
-          'request to http://localhost:9876/does-not-exist failed, reason: ' +
-          'connect ECONNREFUSED 127.0.0.1:9876');
+        err.message.should.satisfy(m =>
+          m.includes(
+            'request to http://localhost:9876/does-not-exist failed, reason: ' +
+            'connect ECONNREFUSED 127.0.0.1:9876') ||
+            // node 18.x +
+            m.includes('fetch failed'));
       });
     });
   } else {
