@@ -2,11 +2,13 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 // common test for ESM and CommonJS
-exports.test = function({ky, httpClient, DEFAULT_HEADERS, isNode}) {
+exports.test = function({kyPromise, httpClient, DEFAULT_HEADERS, isNode}) {
 
 /* eslint-disable indent */
 describe('http-client API', () => {
+  let ky;
   it('has proper exports', async () => {
+    ky = await kyPromise;
     should.exist(ky);
     DEFAULT_HEADERS.should.have.keys(['Accept']);
     httpClient.should.be.a('function');
