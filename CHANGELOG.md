@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 3.0.1 - 2022-04-xx
+## 3.0.1 - 2022-04-26
 
 ### Fixed
 - Fix direct calls to `httpClient()`. If the call options use a method that
