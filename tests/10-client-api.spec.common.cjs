@@ -122,11 +122,49 @@ describe('http-client API', () => {
     should.exist(response.data);
     response.status.should.equal(200);
   });
+  it('handles a successful direct get', async () => {
+    let err;
+    let response;
+    try {
+      response = await httpClient('http://httpbin.org/json');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+  });
   it('handles a get not found error with JSON data', async () => {
     let err;
     let response;
     try {
       response = await httpClient.get(
+        'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.contain('No route found');
+    should.exist(err.response);
+    should.exist(err.response.status);
+    should.exist(err.status);
+    err.status.should.equal(404);
+    should.exist(err.data);
+    err.data.should.be.an('object');
+    // these are API specific from the JSON body of the response
+    err.data.should.have.keys(['status', 'message', 'code']);
+    err.data.status.should.equal('error');
+    err.data.message.should.contain('No route found');
+    err.data.code.should.equal(404);
+  });
+  it('handles a direct get not found error with JSON data', async () => {
+    let err;
+    let response;
+    try {
+      response = await httpClient(
         'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
     } catch(e) {
       err = e;

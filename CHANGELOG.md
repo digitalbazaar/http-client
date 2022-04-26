@@ -1,5 +1,13 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 3.0.1 - 2022-04-xx
+
+### Fixed
+- Fix direct calls to `httpClient()`. If the call options use a method that
+  is supported as a base function helper, e.g., `httpClient.get`, then it
+  will be treated as if that helper was called just like the previous
+  version of this library.
+
 ## 3.0.0 - 2022-04-20
 
 ### Changed
