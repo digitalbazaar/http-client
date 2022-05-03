@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 3.1.0 - 2022-xx-xx
+## 3.1.0 - 2022-05-03
 
 ### Removed
 - Remove unused dependencies.
