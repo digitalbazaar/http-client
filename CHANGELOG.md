@@ -5,6 +5,9 @@
 ### Removed
 - Remove unused dependencies.
 
+### Changed
+- Update dependencies.
+
 ## 3.0.1 - 2022-04-26
 
 ### Fixed
