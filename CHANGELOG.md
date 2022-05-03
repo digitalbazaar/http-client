@@ -1,11 +1,14 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 3.0.2 - 2022-xx-xx
+## 3.1.0 - 2022-xx-xx
 
 ### Removed
 - Remove unused dependencies.
 
 ### Changed
+- Always set response `data` field and default to `undefined`. Addresses issue
+  when a non-JSON response is receieved, a caller accesses the `data` field,
+  and a lower level library prints out a one-time warning to use other fields.
 - Update dependencies.
 - Lint module.
 
