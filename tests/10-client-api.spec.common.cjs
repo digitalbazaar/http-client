@@ -122,6 +122,21 @@ describe('http-client API', () => {
     should.exist(response.data);
     response.status.should.equal(200);
   });
+  it('handles a successful get with HTML data', async () => {
+    let err;
+    let response;
+    try {
+      response = await httpClient.get('http://httpbin.org/html');
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.not.exist(response.data);
+    should.exist(await response.text());
+    response.status.should.equal(200);
+  });
   it('handles a successful direct get', async () => {
     let err;
     let response;
