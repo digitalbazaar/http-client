@@ -34,11 +34,6 @@
     "ky-universal": "^0.10.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.2",
-    "@babel/plugin-transform-modules-commonjs": "^7.10.1",
-    "@babel/plugin-transform-runtime": "^7.10.1",
-    "@babel/preset-env": "^7.10.2",
-    "@babel/runtime": "^7.10.2",
     "c8": "^7.11.0",
     "chai": "^4.2.0",
     "cross-env": "^7.0.2",
@@ -47,7 +42,6 @@
     "eslint-config-digitalbazaar": "^2.8.0",
     "eslint-plugin-jsdoc": "^39.2.5",
     "karma": "^6.3.4",
-    "karma-babel-preprocessor": "^8.0.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-mocha": "^2.0.1",
