@@ -27,8 +27,8 @@ const client = httpClient.extend({headers, httpsAgent});
 #### GET a JSON response in the browser
 ```js
 try {
-  result = await httpClient.get('http://httpbin.org/json');
-  return result.data;
+  const response = await httpClient.get('http://httpbin.org/json');
+  return response.data;
 } catch(e) {
   // status is HTTP status code
   // data is JSON error from the server
@@ -43,8 +43,8 @@ import https from 'https';
 // use an agent to avoid self-signed certificate errors
 const agent = new https.Agent({rejectUnauthorized: false});
 try {
-  result = await httpClient.get('http://httpbin.org/json', {agent});
-  return result.data;
+  const response = await httpClient.get('http://httpbin.org/json', {agent});
+  return response.data;
 } catch(e) {
   // status is HTTP status code
   // data is JSON error from the server if available
@@ -57,9 +57,9 @@ try {
 ```js
 const headers = {Accept: 'text/html'};
 try {
-  result = await httpClient.get('http://httpbin.org/json', {headers});
-  // see: https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods
-  return result.response.text();
+  const response = await httpClient.get('http://httpbin.org/html', {headers});
+  // see: https://developer.mozilla.org/en-US/docs/Web/API/Response#methods
+  return response.text();
 } catch(e) {
   // status is HTTP status code
   // any message from the server can be parsed from the response if present
@@ -71,11 +71,11 @@ try {
 #### POST a JSON payload
 ```js
 try {
-  result = await httpClient.post('http://httpbin.org/json', {
+  const response = await httpClient.post('http://httpbin.org/json', {
     // `json` is the payload or body of the POST request
     json: {some: 'data'}
   });
-  return result.data;
+  return response.data;
 } catch(e) {
   // status is HTTP status code
   // data is JSON error from the server
@@ -90,12 +90,12 @@ import https from 'https';
 // use an agent to avoid self-signed certificate errors
 const agent = new https.Agent({rejectUnauthorized: false});
 try {
-  result = await httpClient.post('http://httpbin.org/json', {
+  const response = await httpClient.post('http://httpbin.org/json', {
     agent,
     // `json` is the payload or body of the POST request
     json: {some: 'data'}
   });
-  return result.data;
+  return response.data;
 } catch(e) {
   // status is HTTP status code
   // data is JSON error from the server
