@@ -7,6 +7,7 @@
 
 ### Changed
 - Update dependencies.
+- Lint module.
 
 ## 3.0.1 - 2022-04-26
 
