@@ -3,7 +3,7 @@
 ## 3.2.0 - 2022-05-xx
 
 ### Added
-- Add compatibility code to convert agent options to undici dispatcher for
+- Add compatibility code to convert agent options to an undici dispatcher for
   use with node 18. This code enables node 18 to be used with the legacy
   `agent` and `httpsAgent` options.
 
