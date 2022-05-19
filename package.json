@@ -9,6 +9,9 @@
     "require": "./dist/cjs/index.cjs",
     "import": "./lib/index.js"
   },
+  "browser": {
+    "./lib/agentCompatibility.js": "./lib/agentCompatibility-browser.js"
+  },
   "scripts": {
     "rollup": "rollup -c rollup.config.js",
     "build": "npm run clear && npm run rollup",
@@ -31,7 +34,8 @@
   ],
   "dependencies": {
     "ky": "^0.30.0",
-    "ky-universal": "^0.10.1"
+    "ky-universal": "^0.10.1",
+    "undici": "^5.2.0"
   },
   "devDependencies": {
     "c8": "^7.11.2",
