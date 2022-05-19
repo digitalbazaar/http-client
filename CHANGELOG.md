@@ -1,5 +1,12 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 3.2.0 - 2022-05-xx
+
+### Added
+- Add compatibility code to convert agent options to undici dispatcher for
+  use with node 18. This code enables node 18 to be used with the legacy
+  `agent` and `httpsAgent` options.
+
 ## 3.1.0 - 2022-05-03
 
 ### Removed
