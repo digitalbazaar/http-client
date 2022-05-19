@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 3.2.0 - 2022-05-xx
+## 3.2.0 - 2022-05-19
 
 ### Added
 - Add compatibility code to convert agent options to an undici dispatcher for
