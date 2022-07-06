@@ -64,8 +64,8 @@ describe('http-client API', () => {
       `Expected nonExistentResource "err.requestUrl" to be ` +
         `${nonExistentResource}`
     );
-    // node 18's global fetch seems to be changing the error return type
-    // node 18 fetch returns err.cause
+    // node 18's global fetch is changing the error return type
+    // in node 18 the error code is in err.cause
     const cause = err.cause || err;
     should.exist(
       cause.code, 'Expected nonExistentResource "err.code" to exist.');
