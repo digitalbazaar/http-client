@@ -32,6 +32,49 @@ describe('http-client API', () => {
     err.response.status.should.equal(404);
   });
 
+  it('handles a connection refused error', async () => {
+    let err;
+    let response;
+    // the intention here is to use an unused http port
+    // the port used can not be higher than 65535 making it illegal
+    const nonExistentResource = 'https://localhost:65535';
+    const expectedErrorCode = 'ECONNREFUSED';
+    const headers = {
+      Accept: 'text/html'
+    };
+    try {
+      response = await httpClient.get(nonExistentResource, {headers});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(
+      response, 'Expected nonExistentResource to not return a response.');
+    should.exist(
+      err, 'Expected nonExistentResource to error.');
+    should.not.exist(
+      err.response,
+      'Expected nonExistentResource "err.response" to not exist.'
+    );
+    should.exist(
+      err.requestUrl,
+      'Expected nonExistentResource "err.requestUrl" to exist.'
+    );
+    err.requestUrl.should.equal(
+      nonExistentResource,
+      `Expected nonExistentResource "err.requestUrl" to be ` +
+        `${nonExistentResource}`
+    );
+    // node 18's global fetch seems to be changing the error return type
+    // node 18 fetch returns err.cause
+    const cause = err.cause || err;
+    should.exist(
+      cause.code, 'Expected nonExistentResource "err.code" to exist.');
+    cause.code.should.equal(
+      expectedErrorCode,
+      `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
+    );
+  });
+
   it('handles a TimeoutError error', async () => {
     let err;
     let response;
@@ -219,46 +262,6 @@ describe('http-client API', () => {
             'connect ECONNREFUSED 127.0.0.1:9876') ||
             // node 18.x +
             m.includes('fetch failed'));
-      });
-      it('handles a connection refused error', async () => {
-        let err;
-        let response;
-        // the intention here is to use an unused http port
-        // the port used can not be higher than 65535 making it illegal
-        const nonExistentResource = 'https://localhost:65535';
-        const expectedErrorCode = 'ECONNREFUSED';
-        const headers = {
-          Accept: 'text/html'
-        };
-        try {
-          response = await httpClient.get(nonExistentResource, {headers});
-        } catch(e) {
-          err = e;
-        }
-        should.not.exist(
-          response, 'Expected nonExistentResource to not return a response.');
-        should.exist(
-          err, 'Expected nonExistentResource to error.');
-        should.not.exist(
-          err.response,
-          'Expected nonExistentResource "err.response" to not exist.'
-        );
-        should.exist(
-          err.requestUrl,
-          'Expected nonExistentResource "err.requestUrl" to exist.'
-        );
-        err.requestUrl.should.equal(
-          nonExistentResource,
-          `Expected nonExistentResource "err.requestUrl" to be ` +
-            `${nonExistentResource}`
-        );
-        // node 18's global fetch seems to be changing the error return type
-        // node 18 fetch returns err.cause
-        const cause = err.cause || err;
-        cause.code.should.equal(
-          expectedErrorCode,
-          `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
-        );
       });
     });
   } else {
