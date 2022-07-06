@@ -31,6 +31,47 @@ describe('http-client API', () => {
     err.requestUrl.should.equal('http://httpbin.org/status/404');
     err.response.status.should.equal(404);
   });
+  it('handles a connection refused error', async () => {
+    let err;
+    let response;
+    // the intention here is to use an used http port
+    // the port used can not be higher than 65535 making it illegal
+    const nonExistentResource = 'http://localhost:65535';
+    const expectedErrorCode = 'ECONNREFUSED';
+    try {
+      response = await httpClient.get(nonExistentResource);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(
+      response, 'Expected nonExistentResource to not return a response.');
+    should.exist(
+      err, 'Expected nonExistentResource to error.');
+    err.message.toUpperCase().should.contain(
+      expectedErrorCode,
+      `Expected nonExistentResource err message to contain ${expectedErrorCode}`
+    );
+    err.type.should.equal(
+      'system', 'Expected nonExistentResource "err.type" to be "system".');
+    err.code.should.equal(
+      expectedErrorCode,
+      `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
+    );
+    should.not.exist(
+      err.response,
+      'Expected nonExistentResource "err.response" to not exist.'
+    );
+    should.exist(
+      err.requestUrl,
+      'Expected nonExistentResource "err.requestUrl" to exist.'
+    );
+    err.requestUrl.should.equal(
+      nonExistentResource,
+      `Expected nonExistentResource "err.requestUrl" to be ` +
+        `${nonExistentResource}`
+    );
+  });
+
   it('handles a TimeoutError error', async () => {
     let err;
     let response;
