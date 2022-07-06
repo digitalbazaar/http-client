@@ -34,12 +34,15 @@ describe('http-client API', () => {
   it('handles a connection refused error', async () => {
     let err;
     let response;
-    // the intention here is to use an used http port
+    // the intention here is to use an unused http port
     // the port used can not be higher than 65535 making it illegal
-    const nonExistentResource = 'http://localhost:65535';
+    const nonExistentResource = 'https://localhost:65535';
     const expectedErrorCode = 'ECONNREFUSED';
+    const headers = {
+      Accept: 'text/html'
+    };
     try {
-      response = await httpClient.get(nonExistentResource);
+      response = await httpClient.get(nonExistentResource, {headers});
     } catch(e) {
       err = e;
     }
@@ -61,6 +64,7 @@ describe('http-client API', () => {
         `${nonExistentResource}`
     );
     // node 18's global fetch seems to be changing the error return type
+    // node 18 fetch returns err.cause
     const cause = err.cause || err;
     cause.code.should.equal(
       expectedErrorCode,
