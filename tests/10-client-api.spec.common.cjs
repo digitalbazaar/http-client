@@ -47,16 +47,6 @@ describe('http-client API', () => {
       response, 'Expected nonExistentResource to not return a response.');
     should.exist(
       err, 'Expected nonExistentResource to error.');
-    err.message.toUpperCase().should.contain(
-      expectedErrorCode,
-      `Expected nonExistentResource err message to contain ${expectedErrorCode}`
-    );
-    err.type.should.equal(
-      'system', 'Expected nonExistentResource "err.type" to be "system".');
-    err.code.should.equal(
-      expectedErrorCode,
-      `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
-    );
     should.not.exist(
       err.response,
       'Expected nonExistentResource "err.response" to not exist.'
@@ -69,6 +59,12 @@ describe('http-client API', () => {
       nonExistentResource,
       `Expected nonExistentResource "err.requestUrl" to be ` +
         `${nonExistentResource}`
+    );
+    // node 18's global fetch seems to be changing the error return type
+    const cause = err.cause || err;
+    cause.code.should.equal(
+      expectedErrorCode,
+      `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
     );
   });
 
