@@ -39,9 +39,9 @@ describe('http-client API', () => {
     // the port used can not be higher than 65535 making it illegal
     const nonExistentResource = 'https://localhost:65535';
     const expectedErrorCode = 'ECONNREFUSED';
-    const headers = {
-      Accept: 'text/html'
-    };
+    // replace the default Accept with text/plain to get around
+    // possibly sending a CORS pre-flight
+    const headers = {Accept: 'text/plain'};
     try {
       response = await httpClient.get(nonExistentResource, {headers});
     } catch(e) {
@@ -67,12 +67,13 @@ describe('http-client API', () => {
     // node 18's global fetch is changing the error return type
     // in node 18 the error code is in err.cause
     const cause = err.cause || err;
-    should.exist(
-      cause.code, 'Expected nonExistentResource "err.code" to exist.');
-    cause.code.should.equal(
-      expectedErrorCode,
-      `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
-    );
+    // chrome's fetch errors don't contain a code at all
+    if(cause.code) {
+      cause.code.should.equal(
+        expectedErrorCode,
+        `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
+      );
+    }
   });
 
   it('handles a TimeoutError error', async () => {
