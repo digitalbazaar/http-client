@@ -36,7 +36,7 @@ describe('http-client API', () => {
     let err;
     let response;
     // the intention here is to use an unused http port
-    // the port used can not be higher than 65535 making it illegal
+    // the port cannot be higher than 65535 (which is invalid)
     const nonExistentResource = 'https://localhost:65535';
     const expectedErrorCode = 'ECONNREFUSED';
     // replace the default Accept with text/plain to get around
@@ -64,8 +64,7 @@ describe('http-client API', () => {
       `Expected nonExistentResource "err.requestUrl" to be ` +
         `${nonExistentResource}`
     );
-    // node 18's global fetch is changing the error return type
-    // in node 18 the error code is in err.cause
+    // in node 18 global fetch places the error code in err.cause
     const cause = err.cause || err;
     // chrome's fetch errors don't contain a code at all
     if(cause.code) {
