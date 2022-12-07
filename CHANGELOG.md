@@ -1,5 +1,14 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.0.0 - xxxx-xx-xx
+
+### Changed
+- **BREAKING**: Update dependencies.
+  - `ky@0.32`/`ky-universal@0.11` fix a security issues and also change the
+    behavior of an empty response body when using `.json()`. An empty string
+    will now be returned instead of thowing.
+- Update development dependencies.
+
 ## 3.2.0 - 2022-05-19
 
 ### Added
