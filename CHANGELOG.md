@@ -1,12 +1,15 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 4.0.0 - xxxx-xx-xx
+## 3.3.0 - 2023-01-xx
 
 ### Changed
-- **BREAKING**: Update dependencies.
-  - `ky@0.32`/`ky-universal@0.11` fix a security issues and also change the
+- Update dependencies.
+  - `ky@0.33`/`ky-universal@0.11`: Fixes security issues and also changes the
     behavior of an empty response body when using `.json()`. An empty string
     will now be returned instead of throwing.
+  - **NOTE**: This is a minor release but it is possible the changed empty
+    response body behavior could cause compatibility issues. Please check
+    your code
 - Update development dependencies.
 
 ## 3.2.0 - 2022-05-19
