@@ -200,13 +200,13 @@ describe('http-client API', () => {
     let response;
     try {
       response = await httpClient.get(
-        'https://api.github.com/repos/digitalbazaar/http-client/doesnotexist');
+        'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
     } catch(e) {
       err = e;
     }
     should.not.exist(response);
     should.exist(err);
-    err.message.should.contain('Not Found');
+    err.message.should.contain('No route found');
     should.exist(err.response);
     should.exist(err.response.status);
     should.exist(err.status);
@@ -214,22 +214,23 @@ describe('http-client API', () => {
     should.exist(err.data);
     err.data.should.be.an('object');
     // these are API specific from the JSON body of the response
-    err.data.should.have.keys(['documentation_url', 'message']);
-    err.data.documentation_url.should.equal('https://docs.github.com/rest');
-    err.data.message.should.contain('Not Found');
+    err.data.should.have.keys(['status', 'message', 'code']);
+    err.data.status.should.equal('error');
+    err.data.message.should.contain('No route found');
+    err.data.code.should.equal(404);
   });
   it('handles a direct get not found error with JSON data', async () => {
     let err;
     let response;
     try {
       response = await httpClient(
-        'https://api.github.com/repos/digitalbazaar/http-client/doesnotexist');
+        'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
     } catch(e) {
       err = e;
     }
     should.not.exist(response);
     should.exist(err);
-    err.message.should.contain('Not Found');
+    err.message.should.contain('No route found');
     should.exist(err.response);
     should.exist(err.response.status);
     should.exist(err.status);
@@ -237,9 +238,10 @@ describe('http-client API', () => {
     should.exist(err.data);
     err.data.should.be.an('object');
     // these are API specific from the JSON body of the response
-    err.data.should.have.keys(['documentation_url', 'message']);
-    err.data.documentation_url.should.equal('https://docs.github.com/rest');
-    err.data.message.should.contain('Not Found');
+    err.data.should.have.keys(['status', 'message', 'code']);
+    err.data.status.should.equal('error');
+    err.data.message.should.contain('No route found');
+    err.data.code.should.equal(404);
   });
   if(isNode) {
     describe('Nodejs execution context', () => {
