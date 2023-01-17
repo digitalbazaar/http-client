@@ -9,7 +9,7 @@
     will now be returned instead of throwing.
   - **NOTE**: This is a minor release but it is possible the changed empty
     response body behavior could cause compatibility issues. Please check
-    your code
+    your code.
 - Update development dependencies.
 
 ## 3.2.0 - 2022-05-19
