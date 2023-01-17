@@ -200,7 +200,8 @@ describe('http-client API', () => {
     let response;
     try {
       response = await httpClient.get(
-        'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
+        // FIXME: update to use local test endpoint to avoid output changes
+        'https://httpstat.us/404');
     } catch(e) {
       err = e;
     }
@@ -211,22 +212,20 @@ describe('http-client API', () => {
     should.exist(err.response.status);
     should.exist(err.status);
     err.status.should.equal(404);
-    // FIXME: update to use local test endpoint, dog.ceo changed its output.
-    should.not.exist(err.data);
-    //should.exist(err.data);
-    //err.data.should.be.an('object');
-    //// these are API specific from the JSON body of the response
-    //err.data.should.have.keys(['status', 'message', 'code']);
-    //err.data.status.should.equal('error');
-    //err.data.message.should.contain('No route found');
-    //err.data.code.should.equal(404);
+    should.exist(err.data);
+    err.data.should.be.an('object');
+    // these are API specific from the JSON body of the response
+    err.data.should.have.keys(['code', 'description']);
+    err.data.code.should.equal(404);
+    err.data.description.should.equal('Not Found');
   });
   it('handles a direct get not found error with JSON data', async () => {
     let err;
     let response;
     try {
       response = await httpClient(
-        'https://dog.ceo/api/breeds/image/DOESNOTEXIST');
+        // FIXME: update to use local test endpoint to avoid output changes
+        'https://httpstat.us/404');
     } catch(e) {
       err = e;
     }
@@ -237,15 +236,12 @@ describe('http-client API', () => {
     should.exist(err.response.status);
     should.exist(err.status);
     err.status.should.equal(404);
-    // FIXME: update to use local test endpoint, dog.ceo changed its output.
-    should.not.exist(err.data);
-    //should.exist(err.data);
-    //err.data.should.be.an('object');
-    //// these are API specific from the JSON body of the response
-    //err.data.should.have.keys(['status', 'message', 'code']);
-    //err.data.status.should.equal('error');
-    //err.data.message.should.contain('No route found');
-    //err.data.code.should.equal(404);
+    should.exist(err.data);
+    err.data.should.be.an('object');
+    // these are API specific from the JSON body of the response
+    err.data.should.have.keys(['code', 'description']);
+    err.data.code.should.equal(404);
+    err.data.description.should.equal('Not Found');
   });
   if(isNode) {
     describe('Nodejs execution context', () => {
