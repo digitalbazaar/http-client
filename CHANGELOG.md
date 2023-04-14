@@ -1,5 +1,16 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 3.4.0 - 2023-04-xx
+
+### Fixed
+- Defer importing `ky-universal` until needed.
+  - Prevents dangling `Promise` with an import in it.
+  - Avoids dynamic `import` when not needed.
+  - Helps address issues when using Jest.
+  - [PR #35](https://github.com/digitalbazaar/http-client/pull/35)
+  - [Issue #34](https://github.com/digitalbazaar/http-client/issues/34)
+  - [jsonld.js Issue #519](https://github.com/digitalbazaar/jsonld.js/issues/516)
+
 ## 3.3.0 - 2023-01-17
 
 ### Changed
