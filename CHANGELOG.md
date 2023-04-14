@@ -2,6 +2,9 @@
 
 ## 3.4.0 - 2023-04-xx
 
+### Changed
+- Update dependencies.
+
 ### Fixed
 - Defer importing `ky-universal` until needed.
   - Prevents dangling `Promise` with an import in it.
