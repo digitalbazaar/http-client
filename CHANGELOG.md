@@ -4,7 +4,7 @@
 
 ### Changed
 - Use a local HTTP server for most testing.
-- Use httpbin for valid cert HTTPS testing.
+- Use httpstat.us for valid cert HTTPS testing.
 - Add local server self-signed certificate HTTPS test.
 - Test on Node.js 20.x.
 

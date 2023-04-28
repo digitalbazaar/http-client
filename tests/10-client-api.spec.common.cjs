@@ -49,11 +49,11 @@ describe('http-client API', () => {
     response.status.should.equal(200);
   });
 
-  // test HTTPS on httpbin on node and browsers
+  // test HTTPS on httpstat.us on node and browsers
   it('can use HTTPS on httpbin', async () => {
     let err;
     let response;
-    const url = `https://httpbin.org/json`;
+    const url = `https://httpstat.us/200`;
     try {
       response = await httpClient.get(url);
     } catch(e) {
