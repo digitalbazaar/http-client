@@ -1,7 +1,17 @@
 /*
- * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2023 Digital Bazaar, Inc. All rights reserved.
  */
-module.exports = function(config) {
+
+const {startServers} = require('./tests/utils.cjs');
+const webpack = require('webpack');
+
+module.exports = async function(config) {
+  const {
+    //httpServer,
+    //httpsServer,
+    httpHost: testHttpHost,
+    httpsHost: testHttpsHost,
+  } = await startServers();
 
   config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -27,7 +37,13 @@ module.exports = function(config) {
     webpack: {
       //mode: 'production',
       mode: 'development',
-      devtool: 'inline-source-map'
+      devtool: 'inline-source-map',
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env.TEST_HTTP_HOST': JSON.stringify(testHttpHost),
+          'process.env.TEST_HTTPS_HOST': JSON.stringify(testHttpsHost)
+        })
+      ]
     },
 
     // test results reporter to use
