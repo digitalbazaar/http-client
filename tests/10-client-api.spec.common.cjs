@@ -153,6 +153,27 @@ describe('http-client API', () => {
     }
   });
 
+  if(!isNode) {
+    // browser check for endpoint without CORS
+    it.only('handles a CORS error', async () => {
+      let err;
+      let response;
+      const url = `http://${httpHost}/nocors`;
+      try {
+        response = await httpClient.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(response);
+      should.exist(err);
+      err.message.should.equal(
+        `Failed to fetch "${url}". Possible CORS error.`);
+      should.not.exist(err.response);
+      should.exist(err.requestUrl);
+      err.requestUrl.should.equal(url);
+    });
+  }
+
   it('handles a TimeoutError error', async () => {
     let err;
     let response;

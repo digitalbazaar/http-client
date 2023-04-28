@@ -62,21 +62,19 @@ api.makeAgent = options => {
 function createApp() {
   const app = express();
 
-  app.use(cors());
-
-  app.get('/ping', (req, res) => {
+  app.get('/ping', cors(), (req, res) => {
     res.json({
       pong: true
     });
   });
 
-  app.get('/json', (req, res) => {
+  app.get('/json', cors(), (req, res) => {
     res.json({
       json: true
     });
   });
 
-  app.get('/html', (req, res) => {
+  app.get('/html', cors(), (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.send(
       '<!DOCTYPE html><html><head></head><body><p>HTML</p></body></html>'
@@ -84,26 +82,32 @@ function createApp() {
   });
 
   // emulate http://httpbin.org/status/404
-  app.get('/status/404', (req, res) => {
+  app.get('/status/404', cors(), (req, res) => {
     res.status(404).send('NOT FOUND');
   });
 
   // emulate https://httpstat.us/404
-  app.get('/404', (req, res) => {
+  app.get('/404', cors(), (req, res) => {
     res.status(404).json({
       code: 404,
       description: 'Not Found'
     });
   });
 
-  app.get('/delay/:seconds', async (req, res) => {
+  app.get('/delay/:seconds', cors(), async (req, res) => {
     await delay(req.params.seconds * 1000);
     res.status(200).send();
   });
 
-  app.get('/headers', (req, res) => {
+  app.get('/headers', cors(), (req, res) => {
     res.json({
       headers: req.headers
+    });
+  });
+
+  app.get('/nocors', (req, res) => {
+    res.json({
+      cors: false
     });
   });
 
