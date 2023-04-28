@@ -7,6 +7,9 @@
 - Use httpbin for valid cert HTTPS testing.
 - Add local server self-signed certificate HTTPS test.
 
+### Fixed
+- Fix Node.js 19+ compatibility bug.
+
 ## 3.4.0 - 2023-04-14
 
 ### Changed
