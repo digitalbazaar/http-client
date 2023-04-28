@@ -2,10 +2,28 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 // common test for ESM and CommonJS
-exports.test = function({kyPromise, httpClient, DEFAULT_HEADERS, isNode}) {
+exports.test = function({
+  kyPromise, httpClient, DEFAULT_HEADERS, isNode, utils
+}) {
 
 /* eslint-disable indent */
 describe('http-client API', () => {
+  // start/close local test server
+  let serverInfo;
+  let httpHost;
+  let httpsHost;
+  before(async () => {
+    serverInfo = await utils.startServers();
+    httpHost = serverInfo.httpHost;
+    httpsHost = serverInfo.httpsHost;
+  });
+  after(async () => {
+    await Promise.all([
+      serverInfo.httpServer.close(),
+      serverInfo.httpsServer.close()
+    ]);
+  });
+
   let ky;
   it('has proper exports', async () => {
     ky = await kyPromise;
@@ -14,11 +32,71 @@ describe('http-client API', () => {
     httpClient.should.be.a('function');
     ky.should.be.a('function');
   });
+
+  it('can ping HTTP test server', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/ping`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+  });
+
+  // test HTTPS on httpbin on node and browsers
+  it('can use HTTPS on httpbin', async () => {
+    let err;
+    let response;
+    const url = `https://httpbin.org/json`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+    const ct = response.headers.get('content-type');
+    should.exist(ct);
+    ct.includes('application/json').should.be.true;
+  });
+
+  if(isNode) {
+    // test local self-signed cert in node only
+    it('can ping HTTPS test server', async () => {
+      let err;
+      let response;
+      const url = `https://${httpsHost}/ping`;
+      try {
+        const agent = utils.makeAgent({
+          rejectUnauthorized: false
+        });
+        response = await httpClient.get(url, {agent});
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      should.exist(response.status);
+      should.exist(response.data);
+      response.status.should.equal(200);
+    });
+  }
+
   it('handles a get not found error', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/status/404`;
     try {
-      response = await httpClient.get('http://httpbin.org/status/404');
+      response = await httpClient.get(url);
     } catch(e) {
       err = e;
     }
@@ -28,7 +106,7 @@ describe('http-client API', () => {
     should.exist(err.response);
     should.exist(err.response.status);
     should.exist(err.requestUrl);
-    err.requestUrl.should.equal('http://httpbin.org/status/404');
+    err.requestUrl.should.equal(url);
     err.response.status.should.equal(404);
   });
 
@@ -78,8 +156,9 @@ describe('http-client API', () => {
   it('handles a TimeoutError error', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/delay/2`;
     try {
-      response = await httpClient.get('http://httpbin.org/delay/2', {
+      response = await httpClient.get(url, {
         timeout: 1000,
       });
     } catch(e) {
@@ -88,16 +167,17 @@ describe('http-client API', () => {
     should.not.exist(response);
     should.exist(err);
     err.message.should.equal(
-      'Request to "http://httpbin.org/delay/2" timed out.');
+      `Request to "${url}" timed out.`);
     should.not.exist(err.response);
     should.exist(err.requestUrl);
-    err.requestUrl.should.equal('http://httpbin.org/delay/2');
+    err.requestUrl.should.equal(url);
   });
   it('successfully makes request with default json headers', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/headers`;
     try {
-      response = await httpClient.get('https://httpbin.org/headers');
+      response = await httpClient.get(url);
     } catch(e) {
       err = e;
     }
@@ -107,14 +187,15 @@ describe('http-client API', () => {
     should.exist(response.data);
     should.exist(response.data.headers);
     response.status.should.equal(200);
-    const {Accept: accept} = response.data.headers;
+    const {accept} = response.data.headers;
     accept.should.equal('application/ld+json, application/json');
   });
   it('successfully makes request with header that is overridden', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/headers`;
     try {
-      response = await httpClient.get('https://httpbin.org/headers', {
+      response = await httpClient.get(url, {
         headers: {
           accept: 'text/html'
         }
@@ -128,14 +209,15 @@ describe('http-client API', () => {
     should.exist(response.data);
     should.exist(response.data.headers);
     response.status.should.equal(200);
-    const {Accept: accept} = response.data.headers;
+    const {accept} = response.data.headers;
     accept.should.equal('text/html');
   });
   it('can use create() to provide default headers', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/headers`;
     try {
-      response = await httpClient.get('https://httpbin.org/headers', {
+      response = await httpClient.get(url, {
         headers: {
           accept: 'text/html'
         }
@@ -149,14 +231,15 @@ describe('http-client API', () => {
     should.exist(response.data);
     should.exist(response.data.headers);
     response.status.should.equal(200);
-    const {Accept: accept} = response.data.headers;
+    const {accept} = response.data.headers;
     accept.should.equal('text/html');
   });
   it('handles a successful get with JSON data', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/json`;
     try {
-      response = await httpClient.get('http://httpbin.org/json');
+      response = await httpClient.get(url);
     } catch(e) {
       err = e;
     }
@@ -165,12 +248,16 @@ describe('http-client API', () => {
     should.exist(response.status);
     should.exist(response.data);
     response.status.should.equal(200);
+    const ct = response.headers.get('content-type');
+    should.exist(ct);
+    ct.includes('application/json').should.be.true;
   });
   it('handles a successful get with HTML data', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/html`;
     try {
-      response = await httpClient.get('http://httpbin.org/html');
+      response = await httpClient.get(url);
     } catch(e) {
       err = e;
     }
@@ -180,12 +267,16 @@ describe('http-client API', () => {
     should.not.exist(response.data);
     should.exist(await response.text());
     response.status.should.equal(200);
+    const ct = response.headers.get('content-type');
+    should.exist(ct);
+    ct.includes('text/html').should.be.true;
   });
   it('handles a successful direct get', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/json`;
     try {
-      response = await httpClient('http://httpbin.org/json');
+      response = await httpClient(url);
     } catch(e) {
       err = e;
     }
@@ -198,10 +289,9 @@ describe('http-client API', () => {
   it('handles a get not found error with JSON data', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/404`;
     try {
-      response = await httpClient.get(
-        // FIXME: update to use local test endpoint to avoid output changes
-        'https://httpstat.us/404');
+      response = await httpClient.get(url);
     } catch(e) {
       err = e;
     }
@@ -222,10 +312,9 @@ describe('http-client API', () => {
   it('handles a direct get not found error with JSON data', async () => {
     let err;
     let response;
+    const url = `http://${httpHost}/404`;
     try {
-      response = await httpClient(
-        // FIXME: update to use local test endpoint to avoid output changes
-        'https://httpstat.us/404');
+      response = await httpClient(url);
     } catch(e) {
       err = e;
     }
@@ -282,31 +371,32 @@ describe('http-client API', () => {
       });
     });
   }
-});
 
-describe('extend (custom client)', () => {
-  it('adds an Authorization header to all requests', async () => {
-    const accessToken = '12345';
+  describe('extend (custom client)', () => {
+    it('adds an Authorization header to all requests', async () => {
+      const accessToken = '12345';
 
-    const client = httpClient.extend({
-      headers: {Authorization: `Bearer ${accessToken}`}
+      const client = httpClient.extend({
+        headers: {Authorization: `Bearer ${accessToken}`}
+      });
+
+      let err;
+      let response;
+      const url = `http://${httpHost}/headers`;
+      try {
+        response = await client.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      should.exist(response.status);
+      should.exist(response.data);
+      should.exist(response.data.headers);
+      response.status.should.equal(200);
+      const {authorization: authzHeader} = response.data.headers;
+      authzHeader.should.equal('Bearer 12345');
     });
-
-    let err;
-    let response;
-    try {
-      response = await client.get('https://httpbin.org/headers');
-    } catch(e) {
-      err = e;
-    }
-    should.not.exist(err);
-    should.exist(response);
-    should.exist(response.status);
-    should.exist(response.data);
-    should.exist(response.data.headers);
-    response.status.should.equal(200);
-    const {Authorization: authzHeader} = response.data.headers;
-    authzHeader.should.equal('Bearer 12345');
   });
 });
 

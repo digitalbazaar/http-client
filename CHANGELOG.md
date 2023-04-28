@@ -1,5 +1,12 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 3.4.1 - 2023-04-xx
+
+### Changed
+- Use a local HTTP server for most testing.
+- Use httpbin for valid cert HTTPS testing.
+- Add local server self-signed certificate HTTPS test.
+
 ## 3.4.0 - 2023-04-14
 
 ### Changed

@@ -8,5 +8,6 @@ import {
 } from '../lib/index.js';
 import isNode from 'detect-node';
 import {test} from './10-client-api.spec.common.cjs';
+import utils from './utils.cjs';
 
-test({kyPromise, httpClient, DEFAULT_HEADERS, isNode});
+test({kyPromise, httpClient, DEFAULT_HEADERS, isNode, utils});
