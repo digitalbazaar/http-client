@@ -172,6 +172,7 @@ describe('http-client API', () => {
     should.exist(err.requestUrl);
     err.requestUrl.should.equal(url);
   });
+
   it('successfully makes request with default json headers', async () => {
     let err;
     let response;
@@ -190,6 +191,7 @@ describe('http-client API', () => {
     const {accept} = response.data.headers;
     accept.should.equal('application/ld+json, application/json');
   });
+
   it('successfully makes request with header that is overridden', async () => {
     let err;
     let response;
@@ -212,6 +214,7 @@ describe('http-client API', () => {
     const {accept} = response.data.headers;
     accept.should.equal('text/html');
   });
+
   it('can use create() to provide default headers', async () => {
     let err;
     let response;
@@ -234,6 +237,7 @@ describe('http-client API', () => {
     const {accept} = response.data.headers;
     accept.should.equal('text/html');
   });
+
   it('handles a successful get with JSON data', async () => {
     let err;
     let response;
@@ -252,6 +256,7 @@ describe('http-client API', () => {
     should.exist(ct);
     ct.includes('application/json').should.be.true;
   });
+
   it('handles a successful get with HTML data', async () => {
     let err;
     let response;
@@ -271,6 +276,7 @@ describe('http-client API', () => {
     should.exist(ct);
     ct.includes('text/html').should.be.true;
   });
+
   it('handles a successful direct get', async () => {
     let err;
     let response;
@@ -286,6 +292,7 @@ describe('http-client API', () => {
     should.exist(response.data);
     response.status.should.equal(200);
   });
+
   it('handles a get not found error with JSON data', async () => {
     let err;
     let response;
@@ -309,6 +316,7 @@ describe('http-client API', () => {
     err.data.code.should.equal(404);
     err.data.description.should.equal('Not Found');
   });
+
   it('handles a direct get not found error with JSON data', async () => {
     let err;
     let response;
@@ -332,6 +340,7 @@ describe('http-client API', () => {
     err.data.code.should.equal(404);
     err.data.description.should.equal('Not Found');
   });
+
   if(isNode) {
     describe('Nodejs execution context', () => {
       it('handles a network error', async () => {
