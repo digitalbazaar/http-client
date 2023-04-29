@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 3.4.1 - 2023-04-xx
+## 3.4.1 - 2023-04-28
 
 ### Changed
 - Use a local HTTP server for most testing.
