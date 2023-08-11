@@ -13,6 +13,9 @@
     "./lib/agentCompatibility.js": "./lib/agentCompatibility-browser.js",
     "./tests/utils.cjs": "./tests/utils-browser.cjs"
   },
+  "react-native": {
+    "./lib/agentCompatibility.js": "./lib/agentCompatibility-browser.js"
+  },
   "scripts": {
     "rollup": "rollup -c rollup.config.js",
     "build": "npm run clear && npm run rollup",

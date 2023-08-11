@@ -1,11 +1,16 @@
 # http-client
-An opinionated, isomorphic HTTP client.
+An opinionated, isomorphic HTTP client for Node.js, browsers, and React Native.
 
 ### Usage
 
-#### Import httpClient
+#### Import httpClient (Node.js)
 ```js
 import https from 'https';
+import {httpClient} from '@digitalbazaar/http-client';
+```
+
+#### Import httpClient (browsers or React Native)
+```js
 import {httpClient} from '@digitalbazaar/http-client';
 ```
 
@@ -37,7 +42,7 @@ try {
 }
 ```
 
-#### GET a JSON response in Node with a HTTP Agent
+#### GET a JSON response in Node with an HTTP Agent
 ```js
 import https from 'https';
 // use an agent to avoid self-signed certificate errors
@@ -84,7 +89,7 @@ try {
 }
 ```
 
-#### POST a JSON payload in Node with a HTTP Agent
+#### POST a JSON payload in Node with an HTTP Agent
 ```js
 import https from 'https';
 // use an agent to avoid self-signed certificate errors
