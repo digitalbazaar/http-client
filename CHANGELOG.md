@@ -1,5 +1,13 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.0.0 - 2023-09-xx
+
+### Changed
+- **BREAKING**: Drop support for Node.js < 18.
+- Use `ky@1.0.1`.
+- Remove `ky-universal` dependency. Node.js 18+ no longer requires `fetch`
+  polyfills.
+
 ## 3.4.1 - 2023-04-28
 
 ### Changed
