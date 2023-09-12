@@ -34,8 +34,7 @@
     "dist/*"
   ],
   "dependencies": {
-    "ky": "^0.33.3",
-    "ky-universal": "^0.11.0",
+    "ky": "^1.0.1",
     "undici": "^5.21.2"
   },
   "devDependencies": {
