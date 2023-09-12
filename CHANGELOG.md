@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 4.0.0 - 2023-09-xx
+## 4.0.0 - 2023-09-12
 
 ### Changed
 - **BREAKING**: Drop support for Node.js < 18.
