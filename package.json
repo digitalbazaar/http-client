@@ -80,7 +80,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/http-client",
   "engines": {
-    "node": ">=14.0"
+    "node": ">=18.0"
   },
   "c8": {
     "reporter": [
