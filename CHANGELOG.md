@@ -1,5 +1,7 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.1.0 - 2024-01-25
+
 ### Added
 - Add a `"react-native"` override section to `package.json`.
 
