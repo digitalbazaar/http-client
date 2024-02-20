@@ -1,5 +1,14 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.1.1 - TBD
+
+### Fixed
+- Upgrade from `undici@5` to `undici@6`.
+  - Undici v6.6.1 addresses a number of CVEs:
+    - https://github.com/nodejs/undici/releases/tag/v6.6.1
+  - Requires Node.js 18+, but v4 of this packages already has that requirement.
+    - https://github.com/nodejs/undici/releases/tag/v6.0.0
+
 ## 4.1.0 - 2024-01-25
 
 ### Added
