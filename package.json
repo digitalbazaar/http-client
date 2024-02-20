@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "ky": "^1.0.1",
-    "undici": "^5.21.2"
+    "undici": "^6.6.2"
   },
   "devDependencies": {
     "c8": "^7.13.0",
