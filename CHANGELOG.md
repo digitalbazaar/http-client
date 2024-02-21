@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 4.1.1 - TBD
+## 4.1.1 - 2024-02-21
 
 ### Fixed
 - Upgrade from `undici@5` to `undici@6`.
