@@ -30,7 +30,7 @@
     "coverage": "cross-env NODE_ENV=test c8 npm run test-node",
     "coverage-ci": "cross-env NODE_ENV=test c8 --reporter=lcovonly --reporter=text-summary --reporter=text npm run test-node",
     "coverage-report": "c8 report",
-    "lint": "eslint --ignore-pattern rollup.config.js ."
+    "lint": "eslint --ext .cjs,.js --ignore-pattern rollup.config.js ."
   },
   "files": [
     "lib/*",
