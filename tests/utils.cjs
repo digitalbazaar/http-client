@@ -3,8 +3,8 @@
  */
 'use strict';
 
+const {setTimeout} = require('node:timers/promises');
 const cors = require('cors');
-const delay = require('delay');
 const express = require('express');
 const fs = require('fs').promises;
 const http = require('http');
@@ -95,7 +95,7 @@ function createApp() {
   });
 
   app.get('/delay/:seconds', cors(), async (req, res) => {
-    await delay(req.params.seconds * 1000);
+    await setTimeout(req.params.seconds * 1000);
     res.status(200).send();
   });
 
