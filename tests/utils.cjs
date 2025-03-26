@@ -6,10 +6,10 @@
 const {setTimeout} = require('node:timers/promises');
 const cors = require('cors');
 const express = require('express');
-const fs = require('fs').promises;
-const http = require('http');
-const https = require('https');
-const path = require('path');
+const fs = require('node:fs').promises;
+const http = require('node:http');
+const https = require('node:https');
+const path = require('node:path');
 
 const api = {};
 module.exports = api;
