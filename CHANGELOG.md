@@ -1,5 +1,14 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.2.0 - 2025-03-xx
+
+### Changed
+- Update dependencies.
+  - `ky@1.7.5`.
+  - `undici@6.21.2`.
+- Update dev dependencies.
+- Update test dependencies.
+
 ## 4.1.1 - 2024-02-21
 
 ### Fixed
