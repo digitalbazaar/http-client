@@ -49,12 +49,12 @@ describe('http-client API', () => {
     response.status.should.equal(200);
   });
 
-  // test HTTPS on api.github.com on node and browsers
+  // test HTTPS on github.com on node and browsers
   // NOTE: might get rate limited
-  it('can use HTTPS on api.github.com', async () => {
+  it('can use HTTPS on github.com', async () => {
     let err;
     let response;
-    const url = `https://api.github.com/repos/digitalbazaar/http-client`;
+    const url = 'https://github.com/';
     try {
       response = await httpClient.get(url);
     } catch(e) {
