@@ -49,11 +49,12 @@ describe('http-client API', () => {
     response.status.should.equal(200);
   });
 
-  // test HTTPS on httpstat.us on node and browsers
-  it('can use HTTPS on httpbin', async () => {
+  // test HTTPS on api.github.com on node and browsers
+  // NOTE: might get rate limited
+  it('can use HTTPS on api.github.com', async () => {
     let err;
     let response;
-    const url = `https://httpstat.us/200`;
+    const url = `https://api.github.com/repos/digitalbazaar/http-client`;
     try {
       response = await httpClient.get(url);
     } catch(e) {

@@ -1,5 +1,11 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.2.1 - 2025-xx-xx
+
+### Fixed
+- Update HTTPS test endpoint from dead service to to api.github.com. May hit
+  rate limits during testing.
+
 ## 4.2.0 - 2025-03-25
 
 ### Changed
