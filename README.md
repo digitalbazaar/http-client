@@ -3,13 +3,7 @@ An opinionated, isomorphic HTTP client for Node.js, browsers, and React Native.
 
 ### Usage
 
-#### Import httpClient (Node.js)
-```js
-import https from 'https';
-import {httpClient} from '@digitalbazaar/http-client';
-```
-
-#### Import httpClient (browsers or React Native)
+#### Import httpClient (Node.js, browsers, or React Native)
 ```js
 import {httpClient} from '@digitalbazaar/http-client';
 ```
@@ -18,15 +12,23 @@ import {httpClient} from '@digitalbazaar/http-client';
 ```js
 import {httpClient} from '@digitalbazaar/http-client';
 
-const httpsAgent = new https.Agent({rejectUnauthorized: false});
-
 const accessToken = '12345';
 const headers = {Authorization: `Bearer ${accessToken}`};
 
+const client = httpClient.extend({headers});
+
+// subsequent http calls will include an 'Authorization: Bearer 12345' header
+```
+
+#### Disable self-signed TLS/SSL cert checks for development purposes only
+```js
+import {Agent} from 'https';
+import {httpClient} from '@digitalbazaar/http-client';
+
+const httpsAgent = new https.Agent({rejectUnauthorized: false});
 const client = httpClient.extend({headers, httpsAgent});
 
-// subsequent http calls will include an 'Authorization: Bearer 12345' header,
-// and use the provided httpsAgent
+// subsequent http calls will use the provided httpsAgent
 ```
 
 #### GET a JSON response in the browser
