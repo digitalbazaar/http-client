@@ -25,10 +25,10 @@ const client = httpClient.extend({headers});
 import {Agent} from 'https';
 import {httpClient} from '@digitalbazaar/http-client';
 
-const httpsAgent = new https.Agent({rejectUnauthorized: false});
-const client = httpClient.extend({headers, httpsAgent});
+const agent = new https.Agent({rejectUnauthorized: false});
+const client = httpClient.extend({headers, agent});
 
-// subsequent http calls will use the provided httpsAgent
+// subsequent http calls will use the provided https Agent
 ```
 
 #### GET a JSON response in the browser
