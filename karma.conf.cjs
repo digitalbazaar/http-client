@@ -10,7 +10,7 @@ module.exports = async function(config) {
     //httpServer,
     //httpsServer,
     httpHost: testHttpHost,
-    httpsHost: testHttpsHost,
+    httpsHost: testHttpsHost
   } = await startServers();
 
   config.set({
