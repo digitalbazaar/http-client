@@ -6,7 +6,8 @@ exports.test = function({
   kyPromise, httpClient, DEFAULT_HEADERS, isNode, utils
 }) {
 
-/* eslint-disable indent */
+/* eslint-disable @stylistic/indent */
+/* global after, before, describe, it, should */
 describe('http-client API', () => {
   // start/close local test server
   let serverInfo;
@@ -181,7 +182,7 @@ describe('http-client API', () => {
     const url = `http://${httpHost}/delay/2`;
     try {
       response = await httpClient.get(url, {
-        timeout: 1000,
+        timeout: 1000
       });
     } catch(e) {
       err = e;

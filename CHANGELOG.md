@@ -6,6 +6,10 @@
 - Update dependencies.
   - `ky@1.14.2`.
   - `undici@6.23.0`.
+- Update dev dependencies.
+  - `eslint@9`.
+  - `eslint-config-digitalbazaar` to `@digitalbazaar/eslint-config@7`.
+- Update test dependencies.
 
 ### Fixed
 - Update HTTPS test endpoint from dead service to to github.com. May hit rate
