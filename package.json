@@ -37,8 +37,8 @@
     "dist/*"
   ],
   "dependencies": {
-    "ky": "^1.7.5",
-    "undici": "^6.21.2"
+    "ky": "^1.14.2",
+    "undici": "^6.23.0"
   },
   "devDependencies": {
     "c8": "^10.1.3",
