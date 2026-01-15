@@ -1,6 +1,11 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 4.2.1 - 2025-xx-xx
+## 4.3.0 - 2026-01-xx
+
+### Changed
+- Update dependencies.
+  - `ky@1.14.2`.
+  - `undici@6.23.0`.
 
 ### Fixed
 - Update HTTPS test endpoint from dead service to to github.com. May hit rate
