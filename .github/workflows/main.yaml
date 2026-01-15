@@ -2,6 +2,8 @@ name: Main CI
 
 on: [push]
 
+permissions: {}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -11,6 +13,8 @@ jobs:
         node-version: [24.x]
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
       with:
@@ -27,6 +31,8 @@ jobs:
         node-version: [18.x, 20.x, 22.x, 24.x]
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Install with Node.js 24.x
       uses: actions/setup-node@v6
       with:
@@ -49,6 +55,8 @@ jobs:
         node-version: [24.x]
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
       with:
@@ -65,6 +73,8 @@ jobs:
         node-version: [24.x]
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
       with:
@@ -73,7 +83,7 @@ jobs:
     - name: Generate coverage report
       run: npm run coverage-ci
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
         files: ./coverage/lcov.info
         fail_ci_if_error: true
