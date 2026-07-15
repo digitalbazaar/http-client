@@ -91,6 +91,30 @@ describe('http-client API', () => {
       should.exist(response.data);
       response.status.should.equal(200);
     });
+
+    // exercises the agent path with a request body: on an incompatible
+    // runtime the body + headers must survive the Request -> (url, init)
+    // decomposition, on a compatible one it rides the native dispatcher path
+    it('can POST a body over an HTTPS agent', async () => {
+      let err;
+      let response;
+      const url = `https://${httpsHost}/echo`;
+      const payload = {hello: 'world', n: 42, nested: {ok: true}};
+      try {
+        const agent = utils.makeAgent({
+          rejectUnauthorized: false
+        });
+        response = await httpClient.post(url, {agent, json: payload});
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(200);
+      should.exist(response.data);
+      should.exist(response.data.echo);
+      response.data.echo.should.deep.equal(payload);
+    });
   }
 
   it('handles a get not found error', async () => {

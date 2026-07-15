@@ -1,5 +1,15 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 4.3.1 - 2026-07-15
+
+### Fixed
+- Keep native `fetch` on the agent path when the runtime undici and the
+  bundled undici share a major version, handing the dispatcher to `ky` to
+  forward. Only fall back to the bundled undici's own `fetch` when the majors
+  differ (e.g. node 26's built-in undici 8 rejecting the bundled undici 6
+  dispatcher). Fixes the agent path on node 26 without regressing the native
+  `fetch` performance on compatible runtimes.
+
 ## 4.3.0 - 2026-01-15
 
 ### Changed
