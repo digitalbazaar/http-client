@@ -111,5 +111,11 @@ function createApp() {
     });
   });
 
+  app.post('/echo', cors(), express.json(), (req, res) => {
+    res.json({
+      echo: req.body
+    });
+  });
+
   return app;
 }
