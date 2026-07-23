@@ -1,6 +1,29 @@
 # http-client
 An opinionated, isomorphic HTTP client for Node.js, browsers, and React Native.
 
+## Install
+
+This software requires and supports maintained recent versions of Node.js and
+browsers. Updates may remove support for older unmaintained platform versions.
+Please use dependency version lock files and testing to ensure compatibility
+with this software.
+
+To install from NPM:
+
+https://www.npmjs.com/package/@digitalbazaar/http-client
+
+```sh
+npm install @digitalbazaar/http-client
+```
+
+To install locally (for development):
+
+```sh
+git clone https://github.com/digitalbazaar/http-client.git
+cd http-client
+npm install
+```
+
 ### Usage
 
 #### Import httpClient (Node.js, browsers, or React Native)
