@@ -4,6 +4,11 @@
 
 ### Changed
 - Update dev dependencies.
+- Update README.md.
+- **NOTE**: Update supported platforms.
+  - Test on Node.js >=22.
+  - Update `engines.node` to `>=22`.
+  - Update README requirements section.
 
 ### Removed
 - **BREAKING**: Remove CJS support.

@@ -67,7 +67,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/http-client",
   "engines": {
-    "node": ">=18.0"
+    "node": ">=22"
   },
   "c8": {
     "reporter": [
