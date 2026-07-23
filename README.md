@@ -1,5 +1,14 @@
-# http-client
-An opinionated, isomorphic HTTP client for Node.js, browsers, and React Native.
+# http-client _(@digitalbazaar/http-client)_
+
+> An opinionated, isomorphic HTTP client for Node.js, browsers, and React Native.
+
+## Table of Contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [Contribute](#contribute)
+- [Commercial Support](#commercial-support)
+- [License](#license)
 
 ## Install
 
@@ -27,11 +36,13 @@ npm install
 ### Usage
 
 #### Import httpClient (Node.js, browsers, or React Native)
+
 ```js
 import {httpClient} from '@digitalbazaar/http-client';
 ```
 
 #### Import and initialize a custom Bearer Token client
+
 ```js
 import {httpClient} from '@digitalbazaar/http-client';
 
@@ -44,6 +55,7 @@ const client = httpClient.extend({headers});
 ```
 
 #### Disable self-signed TLS/SSL cert checks for development purposes only
+
 ```js
 import {Agent} from 'https';
 import {httpClient} from '@digitalbazaar/http-client';
@@ -55,6 +67,7 @@ const client = httpClient.extend({headers, agent});
 ```
 
 #### GET a JSON response in the browser
+
 ```js
 try {
   const response = await httpClient.get('http://httpbin.org/json');
@@ -68,6 +81,7 @@ try {
 ```
 
 #### GET a JSON response in Node with an HTTP Agent
+
 ```js
 import https from 'https';
 // use an agent to avoid self-signed certificate errors
@@ -84,6 +98,7 @@ try {
 ```
 
 #### GET HTML by overriding default headers
+
 ```js
 const headers = {Accept: 'text/html'};
 try {
@@ -99,6 +114,7 @@ try {
 ```
 
 #### POST a JSON payload
+
 ```js
 try {
   const response = await httpClient.post('http://httpbin.org/json', {
@@ -115,6 +131,7 @@ try {
 ```
 
 #### POST a JSON payload in Node with an HTTP Agent
+
 ```js
 import https from 'https';
 // use an agent to avoid self-signed certificate errors
@@ -133,3 +150,21 @@ try {
   throw e;
 }
 ```
+
+## Contribute
+
+See [the contribute file](https://github.com/digitalbazaar/bedrock/blob/master/CONTRIBUTING.md)!
+
+PRs accepted.
+
+If editing the Readme, please conform to the
+[standard-readme](https://github.com/RichardLitt/standard-readme) specification.
+
+## Commercial Support
+
+Commercial support for this library is available upon request from
+Digital Bazaar: support@digitalbazaar.com
+
+## License
+
+[New BSD License (3-clause)](LICENSE) © 2026 Digital Bazaar
