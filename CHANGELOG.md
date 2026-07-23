@@ -5,6 +5,9 @@
 ### Changed
 - Update dev dependencies.
 
+### Removed
+- **BREAKING**: Remove CJS support.
+
 ## 4.4.0 - 2026-08-06
 
 ### Changed
