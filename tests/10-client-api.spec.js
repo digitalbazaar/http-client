@@ -405,7 +405,11 @@ describe('http-client API', () => {
             'request to http://localhost:9876/does-not-exist failed, reason: ' +
             'connect ECONNREFUSED 127.0.0.1:9876') ||
             // node 18.x +
-            m.includes('fetch failed'));
+            m.includes('fetch failed') ||
+            // node 22+ / ky@2
+            m.includes(
+              'Request failed due to a network error: ' +
+              'GET http://localhost:9876/does-not-exist'));
       });
     });
   } else {
