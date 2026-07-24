@@ -7,6 +7,9 @@
   - `kyOriginalPromise` no longer exported.
   - `ky` is again exported.
   - Change from using `ky` promises to regular instances.
+- **BREAKING**: Update proxied method list.
+  - Remove `push`.
+  - Add `query`, `options`, and `trace` to align with `ky@2`.
 - Update dependencies:
   - `ky@2`.
     - **BREAKING**: See `ky` docs for exported `ky` API changes. For most use
