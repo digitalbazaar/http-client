@@ -7,6 +7,10 @@
   - `kyOriginalPromise` no longer exported.
   - `ky` is again exported.
   - Change from using `ky` promises to regular instances.
+- Update dependencies:
+  - `ky@2`.
+    - **BREAKING**: See `ky` docs for exported `ky` API changes. For most use
+      cases the wrapped API is expected to be the same.
 - Update dev dependencies.
 - Update README.md.
 - **NOTE**: Update supported platforms.
