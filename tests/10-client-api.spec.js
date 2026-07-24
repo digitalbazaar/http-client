@@ -33,6 +33,47 @@ describe('http-client API', () => {
     ky.should.be.a('function');
   });
 
+  // guards against the proxied set drifting ahead of `ky`'s helper registry:
+  // proxying indexes into `ky[method]`, so a name `ky` does not implement
+  // would throw on first call rather than fail here
+  it('proxies only methods that `ky` implements', async () => {
+    const proxied = [
+      'get', 'post', 'put', 'patch', 'head', 'delete'
+    ];
+    for(const method of proxied) {
+      ky[method].should.be.a('function', `ky.${method} is missing`);
+      httpClient[method].should.be.a(
+        'function', `httpClient.${method} is missing`);
+    }
+    // methods `ky` has no helper for must not be proxied
+    for(const method of ['query', 'options', 'trace']) {
+      should.not.exist(ky[method], `ky.${method} unexpectedly exists`);
+      should.not.exist(
+        httpClient[method], `httpClient.${method} must not be proxied`);
+    }
+  });
+
+  if(isNode) {
+    // `ky` supports `options` as a `method` value but exposes no helper for
+    // it, so it has to reach `ky` through the direct-call fall-through.
+    // Node only: in a browser this needs the server to list OPTIONS in its
+    // CORS `Access-Control-Allow-Methods`, which the default `cors()` used by
+    // the test server does not.
+    it('supports a non-proxied method via the `method` option', async () => {
+      let err;
+      let response;
+      const url = `http://${httpHost}/headers`;
+      try {
+        response = await httpClient(url, {method: 'options'});
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(204);
+    });
+  }
+
   it('can ping HTTP test server', async () => {
     let err;
     let response;

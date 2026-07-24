@@ -7,6 +7,7 @@
   - `kyPromise` no longer exported.
   - `ky` is again exported.
   - Change from using `ky` promises to regular instances.
+- **BREAKING**: Remove `push` from the proxied method list.
 - Update dependencies:
   - `ky@2`.
     - **BREAKING**: See `ky` docs for exported `ky` API changes. For most use
