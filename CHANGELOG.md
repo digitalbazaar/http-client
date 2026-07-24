@@ -3,6 +3,10 @@
 ## 5.0.0 - 2026-xx-xx
 
 ### Changed
+- **BREAKING**: Revert CJS related workarounds from v3.0.0.
+  - `kyOriginalPromise` no longer exported.
+  - `ky` is again exported.
+  - Change from using `ky` promises to regular instances.
 - Update dev dependencies.
 - Update README.md.
 - **NOTE**: Update supported platforms.
