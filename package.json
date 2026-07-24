@@ -26,7 +26,7 @@
     "lib/*"
   ],
   "dependencies": {
-    "ky": "^1.14.2",
+    "ky": "^2.0.2",
     "undici": "^6.23.0"
   },
   "devDependencies": {
