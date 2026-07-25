@@ -36,7 +36,7 @@
     "cors": "^2.8.6",
     "cross-env": "^10.1.0",
     "detect-node": "^2.1.0",
-    "eslint": "^10.7.0",
+    "eslint": "^10.8.0",
     "express": "^5.2.1",
     "karma": "^6.4.4",
     "karma-chai": "^0.1.0",
