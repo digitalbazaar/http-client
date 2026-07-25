@@ -10,10 +10,12 @@
 - **BREAKING**: Update proxied method list.
   - Remove `push`.
   - Add `query`, `options`, and `trace` to align with `ky@2`.
-- Update dependencies:
+- **BREAKING**: Update dependencies:
   - `ky@2`.
-    - **BREAKING**: See `ky` docs for exported `ky` API changes. For most use
-      cases the wrapped API is expected to be the same.
+    - For most use cases the wrapped API is expected to be the same.
+    - See `ky` docs for exported `ky` API changes.
+    - Note that some errors can now have `cause` property chains and may use a
+      `NetworkError`.
 - Update dev dependencies.
 - Update README.md.
 - **NOTE**: Update supported platforms.
