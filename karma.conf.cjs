@@ -81,7 +81,9 @@ module.exports = async function(config) {
           '--disable-setuid-sandbox',
           // Speeds up headless execution in CI environments
           '--disable-gpu',
-          '--disable-software-rasterizer'
+          '--disable-software-rasterizer',
+          // Accept the self-signed cert used by the local HTTPS test server
+          '--ignore-certificate-errors'
         ]
       }
     },

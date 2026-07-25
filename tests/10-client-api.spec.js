@@ -90,38 +90,16 @@ describe('http-client API', () => {
     response.status.should.equal(200);
   });
 
-  // test HTTPS on github.com on node and browsers
-  // NOTE: might get rate limited
-  it('can use HTTPS on github.com', async () => {
-    let err;
-    let response;
-    const url = 'https://github.com/';
-    try {
-      response = await httpClient.get(url);
-    } catch(e) {
-      err = e;
-    }
-    should.not.exist(err);
-    should.exist(response);
-    should.exist(response.status);
-    should.exist(response.data);
-    response.status.should.equal(200);
-    const ct = response.headers.get('content-type');
-    should.exist(ct);
-    ct.includes('application/json').should.be.true;
-  });
-
   if(isNode) {
-    // test local self-signed cert in node only
-    it('can ping HTTPS test server', async () => {
+    // test HTTPS against a real external site; node only, since the site
+    // sends no CORS headers and a browser would block the request
+    // NOTE: might get rate limited
+    it('can use HTTPS on github.com', async () => {
       let err;
       let response;
-      const url = `https://${httpsHost}/ping`;
+      const url = 'https://github.com/';
       try {
-        const agent = utils.makeAgent({
-          rejectUnauthorized: false
-        });
-        response = await httpClient.get(url, {agent});
+        response = await httpClient.get(url);
       } catch(e) {
         err = e;
       }
@@ -130,6 +108,9 @@ describe('http-client API', () => {
       should.exist(response.status);
       should.exist(response.data);
       response.status.should.equal(200);
+      const ct = response.headers.get('content-type');
+      should.exist(ct);
+      ct.includes('application/json').should.be.true;
     });
 
     // exercises the agent path with a request body: on an incompatible
@@ -156,6 +137,27 @@ describe('http-client API', () => {
       response.data.echo.should.deep.equal(payload);
     });
   }
+
+  // test local self-signed cert; node uses an agent to accept it, karma
+  // launches the browser with `--ignore-certificate-errors`
+  it('can ping HTTPS test server', async () => {
+    let err;
+    let response;
+    const url = `https://${httpsHost}/ping`;
+    try {
+      const agent = utils.makeAgent({
+        rejectUnauthorized: false
+      });
+      response = await httpClient.get(url, {agent});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+  });
 
   it('handles a get not found error', async () => {
     let err;
