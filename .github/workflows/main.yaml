@@ -41,10 +41,8 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Run ESM test with Node.js ${{ matrix.node-version }}
+    - name: Run tests with Node.js ${{ matrix.node-version }}
       run: npm run test-node
-    - name: Run CJS test with Node.js ${{ matrix.node-version }}
-      run: npm run test-node-cjs
   test-karma:
     runs-on: ubuntu-latest
     timeout-minutes: 10
