@@ -85,13 +85,9 @@ jobs:
         files: ./coverage/lcov.info
         fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
-        # codecov/codecov-action#1955: the action's default CLI download path
-        # verifies a GPG signature against a key fetched from
-        # https://keybase.io/codecovsecurity/pgp_keys.asc, which has been
-        # returning 404 since ~2026-06-06 -- an upstream Codecov outage, not
-        # anything specific to this repo. `use_pypi` sources the CLI from
-        # PyPI instead, skipping the broken key-import step entirely; this is
-        # the maintainer-confirmed workaround (still needed as of this commit
-        # even on the latest action version, v7.0.0). Safe to remove once
-        # Codecov restores the Keybase key.
+        # Works around intermittent "Can't check signature: No public key"
+        # failures on the action's default GPG-verified CLI download (see
+        # codecov/codecov-action#1955 for the same class of issue). Installs
+        # the CLI from PyPI instead, which skips that verification -- an
+        # availability fix, not a security-neutral one.
         use_pypi: true
