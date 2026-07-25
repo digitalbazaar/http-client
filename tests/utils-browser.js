@@ -18,3 +18,10 @@ export async function startServers() {
     httpsHost: process.env.TEST_HTTPS_HOST
   };
 }
+
+// unused in the browser; the test that calls this is guarded by `isNode`,
+// but it must still exist so webpack's static export check on the
+// `import * as utils` namespace succeeds
+export function makeAgent() {
+  return undefined;
+}
