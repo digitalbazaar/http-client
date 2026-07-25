@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2020-2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2026 Digital Bazaar, Inc.
  */
 
-const {startServers} = require('./tests/utils.cjs');
+const {startServers} = require('./tests/utils.js');
 const webpack = require('webpack');
 
 module.exports = async function(config) {
@@ -70,7 +70,21 @@ module.exports = async function(config) {
     // start these browsers
     // browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     //browsers: ['ChromeHeadless', 'Chrome', 'Firefox', 'Safari'],
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessNoSandbox'],
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: [
+          // Essential: Bypasses container namespace errors
+          '--no-sandbox',
+          // Prevents extra privilege-dropping failures
+          '--disable-setuid-sandbox',
+          // Speeds up headless execution in CI environments
+          '--disable-gpu',
+          '--disable-software-rasterizer'
+        ]
+      }
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
