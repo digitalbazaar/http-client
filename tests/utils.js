@@ -96,6 +96,8 @@ function createApp() {
     res.status(200).send();
   });
 
+  // handle CORS preflight for non-simple request headers (e.g. Authorization)
+  app.options('/headers', cors());
   app.get('/headers', cors(), (req, res) => {
     res.json({
       headers: req.headers
