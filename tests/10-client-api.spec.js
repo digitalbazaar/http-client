@@ -156,7 +156,7 @@ describe('http-client API', () => {
 
   if(!isNode) {
     // browser check for endpoint without CORS
-    it.only('handles a CORS error', async () => {
+    it('handles a CORS error', async () => {
       let err;
       let response;
       const url = `http://${httpHost}/nocors`;
