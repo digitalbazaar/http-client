@@ -43,7 +43,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Run tests with Node.js ${{ matrix.node-version }}
       run: npm run test-node
-  test-karma:
+  test-browser:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -58,8 +58,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - name: Run karma tests
-      run: npm run test-karma
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('package.json') }}
+    - name: Install Playwright chromium
+      run: npx playwright install --with-deps chromium
+    - name: Run browser tests
+      run: npm run test-browser
   coverage:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -75,6 +82,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
+    # coverage runs the browser project too, so a browser is required
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('package.json') }}
+    - name: Install Playwright chromium
+      run: npx playwright install --with-deps chromium
     - name: Generate coverage report
       run: npm run coverage-ci
     - name: Upload coverage to Codecov

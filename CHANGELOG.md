@@ -32,6 +32,26 @@
   - Test on Node.js >=22.
   - Update `engines.node` to `>=22`.
   - Update README requirements section.
+- **BREAKING**: Add an `exports` field.
+  - Only `.`, `./agentCompatibility.js`, and `./package.json` are importable;
+    other deep imports into the package are no longer reachable.
+- Switch testing from `mocha`/`chai`/`karma`/`c8` to `vitest`.
+  - `karma` is unmaintained; `vitest` covers Node.js tests, browser tests, and
+    coverage with a single tool and config.
+  - Browser tests now run in Chromium via `playwright` instead of `karma`.
+  - `npm test` now runs both the Node.js and browser suites; use
+    `npm run test-node` or `npm run test-browser` for one of them.
+  - `npm run test-karma` is replaced by `npm run test-browser`.
+  - `npm run coverage-report` is removed; use
+    `npm run coverage -- --coverage.reporter=html`.
+  - Coverage now includes the browser suite, and reported totals shift
+    slightly because `vitest` and `c8` count executable lines differently.
+
+### Fixed
+- Resolve `agentCompatibility` through an `exports` `browser` condition rather
+  than only the top-level `browser` field. Bundlers that do not apply the
+  `browser` field to package-internal relative imports (such as Vite) no longer
+  pull `undici` into browser builds.
 
 ### Removed
 - **BREAKING**: Remove CJS support.
