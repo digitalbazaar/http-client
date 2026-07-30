@@ -2,6 +2,12 @@
 
 ## 4.4.0 - 2026-07-xx
 
+### Changed
+- Update minor dependencies.
+  - `ky@1.14.3`.
+  - `undici@6.28.0`.
+  - All dev dependencies.
+
 ### Fixed
 - Keep the platform `fetch` on the agent path when the platform undici and
   the installed undici share a major version, handing the dispatcher to `ky`
