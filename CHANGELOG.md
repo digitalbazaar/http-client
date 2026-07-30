@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 4.3.1 - 2026-07-15
+## 4.4.0 - 2026-07-xx
 
 ### Fixed
 - Keep the platform `fetch` on the agent path when the platform undici and
