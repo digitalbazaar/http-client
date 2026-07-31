@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2026 Digital Bazaar, Inc.
  */
 // common test for ESM and CommonJS
 exports.test = function({
