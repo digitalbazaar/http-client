@@ -56,9 +56,9 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-sourcemap-loader": "^0.4.0",
     "karma-webpack": "^5.0.1",
-    "mocha": "^11.7.6",
+    "mocha": "^11.8.0",
     "rimraf": "^6.1.3",
-    "rollup": "^4.62.3",
+    "rollup": "^4.62.4",
     "webpack": "^5.109.2"
   },
   "repository": {
