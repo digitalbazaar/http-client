@@ -1,6 +1,6 @@
 # @digitalbazaar/http-client ChangeLog
 
-## 4.4.0 - 2026-07-xx
+## 4.4.0 - 2026-08-06
 
 ### Changed
 - Update minor dependencies.
