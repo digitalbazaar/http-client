@@ -16,6 +16,11 @@
     - See `ky` docs for exported `ky` API changes.
     - Note that some errors can now have `cause` property chains and may use a
       `NetworkError`.
+  - `undici@7`.
+    - Aligns with the undici built into the current Node.js LTS release.
+    - A v7 dispatcher is usable by the `fetch` built into Node.js 22, 24, and
+      26, so the legacy `agent`/`httpsAgent` options now use the platform
+      `fetch` on every supported release rather than an internal override.
 - Update dev dependencies.
 - Update README.md.
 - **NOTE**: Update supported platforms.

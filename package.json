@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "ky": "^2.0.2",
-    "undici": "^6.28.0"
+    "undici": "^7.29.0"
   },
   "devDependencies": {
     "@digitalbazaar/eslint-config": "^9.0.0",
