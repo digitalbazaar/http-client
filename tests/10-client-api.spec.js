@@ -204,6 +204,32 @@ describe('http-client API', () => {
     accept.should.equal('text/html');
   });
 
+  it('create() returns a client with overridden default headers', async () => {
+    const client = httpClient.create({headers: {Accept: 'text/html'}});
+
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    // the default `Accept` is replaced rather than appended to
+    response.data.headers.accept.should.equal('text/html');
+  });
+
+  it('proxies the `stop` signal from `ky`', async () => {
+    const stop = await httpClient.stop;
+    should.exist(stop);
+    stop.should.equal(ky.stop);
+  });
+
   it('handles a successful get with JSON data', async () => {
     let err;
     let response;
