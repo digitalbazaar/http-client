@@ -37,12 +37,15 @@ export async function startServers() {
   });
   await Promise.all([_httpStarted, _httpsStarted]);
 
-  const httpServerAddress = httpServer.address();
-  const httpsServerAddress = httpsServer.address();
-  const httpHost =
-    `${httpServerAddress.address}:${httpServerAddress.port}`;
-  const httpsHost =
-    `${httpsServerAddress.address}:${httpsServerAddress.port}`;
+  /*
+  The servers bind to every interface, so `address()` reports `0.0.0.0`.
+  Only Chromium treats that as loopback when used as a request host; Firefox
+  and WebKit refuse to connect to it. Advertise the loopback address instead
+  so the same host works in every engine.
+  */
+  const clientHost = '127.0.0.1';
+  const httpHost = `${clientHost}:${httpServer.address().port}`;
+  const httpsHost = `${clientHost}:${httpsServer.address().port}`;
 
   return {
     httpServer,

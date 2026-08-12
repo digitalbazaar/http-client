@@ -224,6 +224,35 @@ describe('http-client API', () => {
     response.data.headers.accept.should.equal('text/html');
   });
 
+  it('create() and extend() keep the defaults with no overrides', async () => {
+    const url = `http://${httpHost}/headers`;
+    for(const client of [httpClient.create({}), httpClient.extend({})]) {
+      const response = await client.get(url);
+      response.status.should.equal(200);
+      response.data.headers.accept.should.equal(
+        'application/ld+json, application/json');
+    }
+  });
+
+  it('does not parse the body when `parseBody` is false', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/json`;
+    try {
+      response = await httpClient.get(url, {parseBody: false});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    // `data` is always defined as a property, but left undefined
+    should.not.exist(response.data);
+    // the body is untouched, so the caller can still read it
+    const body = await response.json();
+    should.exist(body);
+  });
+
   it('proxies the `stop` signal from `ky`', async () => {
     const stop = await httpClient.stop;
     should.exist(stop);
