@@ -8,6 +8,13 @@
   - `ky` is again exported.
   - Change from using `ky` promises to regular instances.
 - **BREAKING**: Remove `push` from the proxied method list.
+- **BREAKING**: `error.data` is now set for any error response body, not only
+  a JSON one.
+  - `ky@2` buffers the error body regardless of content type, so `.data` is
+    an object for JSON and a string otherwise. Under v4 it was left
+    `undefined` unless the content type included `json`.
+  - Code using `if(error.data)` as a "the server sent JSON" test needs
+    updating; an HTML error page from a proxy now makes it truthy.
 - **BREAKING**: Update dependencies:
   - `ky@2`.
     - For most use cases the wrapped API is expected to be the same.
