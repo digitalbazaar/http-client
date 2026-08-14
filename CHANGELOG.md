@@ -1,5 +1,41 @@
 # @digitalbazaar/http-client ChangeLog
 
+## 5.0.0 - 2026-xx-xx
+
+### Changed
+- **BREAKING**: Revert CJS related workarounds from v3.0.0.
+  - `kyPromise` no longer exported.
+  - `ky` is again exported.
+  - Change from using `ky` promises to regular instances.
+- **BREAKING**: Remove `push` from the proxied method list.
+- **BREAKING**: `error.data` is now set for any error response body, not only
+  a JSON one.
+  - `ky@2` buffers the error body regardless of content type, so `.data` is
+    an object for JSON and a string otherwise. Under v4 it was left
+    `undefined` unless the content type included `json`.
+  - Code using `if(error.data)` as a "the server sent JSON" test needs
+    updating; an HTML error page from a proxy now makes it truthy.
+- **BREAKING**: Update dependencies:
+  - `ky@2`.
+    - For most use cases the wrapped API is expected to be the same.
+    - See `ky` docs for exported `ky` API changes.
+    - Note that some errors can now have `cause` property chains and may use a
+      `NetworkError`.
+  - `undici@7`.
+    - Aligns with the undici built into the current Node.js LTS release.
+    - A v7 dispatcher is usable by the `fetch` built into Node.js 22, 24, and
+      26, so the legacy `agent`/`httpsAgent` options now use the platform
+      `fetch` on every supported release rather than an internal override.
+- Update dev dependencies.
+- Update README.md.
+- **NOTE**: Update supported platforms.
+  - Test on Node.js >=22.
+  - Update `engines.node` to `>=22`.
+  - Update README requirements section.
+
+### Removed
+- **BREAKING**: Remove CJS support.
+
 ## 4.4.0 - 2026-08-06
 
 ### Changed
