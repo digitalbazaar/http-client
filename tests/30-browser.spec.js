@@ -34,7 +34,10 @@ describe('http-client API', () => {
     let response;
     const url = `http://${httpHost}/nocors`;
     try {
-      response = await httpClient.get(url);
+      response = await httpClient.get(url, {
+        // skip ky's retry backoff for a network error
+        retry: 0
+      });
     } catch(e) {
       err = e;
     }
@@ -52,7 +55,10 @@ describe('http-client API', () => {
       let err;
       let response;
       try {
-        response = await httpClient.get('https://example.com');
+        response = await httpClient.get('https://example.com', {
+          // skip ky's retry backoff for a network error
+          retry: 0
+        });
       } catch(e) {
         err = e;
       }

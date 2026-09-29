@@ -169,7 +169,10 @@ describe('http-client API', () => {
       const nonExistentResource = 'https://localhost:65535';
       const expectedErrorCode = 'ECONNREFUSED';
       try {
-        await httpClient.get(nonExistentResource);
+        await httpClient.get(nonExistentResource, {
+          // skip ky's retry backoff for a network error
+          retry: 0
+        });
       } catch(e) {
         err = e;
       }
@@ -289,7 +292,10 @@ describe('http-client API', () => {
       let response;
       try {
         response = await httpClient.get(
-          'http://localhost:9876/does-not-exist');
+          'http://localhost:9876/does-not-exist', {
+            // skip ky's retry backoff for a network error
+            retry: 0
+          });
       } catch(e) {
         err = e;
       }

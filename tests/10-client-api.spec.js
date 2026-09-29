@@ -134,7 +134,11 @@ describe('http-client API', () => {
     // possibly sending a CORS pre-flight
     const headers = {Accept: 'text/plain'};
     try {
-      response = await httpClient.get(nonExistentResource, {headers});
+      response = await httpClient.get(nonExistentResource, {
+        headers,
+        // skip ky's retry backoff for a network error
+        retry: 0
+      });
     } catch(e) {
       err = e;
     }
@@ -217,10 +221,10 @@ describe('http-client API', () => {
   it('handles a TimeoutError error', async () => {
     let err;
     let response;
-    const url = `http://${httpHost}/delay/2`;
+    const url = `http://${httpHost}/delay/1`;
     try {
       response = await httpClient.get(url, {
-        timeout: 1000
+        timeout: 100
       });
     } catch(e) {
       err = e;
