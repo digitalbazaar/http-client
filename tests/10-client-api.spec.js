@@ -186,6 +186,38 @@ describe('http-client API', () => {
     });
   }
 
+  if(isNode) {
+    // a custom `fetch` (e.g. from another library) is used as given; agent
+    // conversion must neither replace it nor slip it a `dispatcher`
+    it('keeps a custom `fetch` when an agent is given', async () => {
+      let err;
+      let response;
+      let called = false;
+      let dispatcher;
+      const url = `http://${httpHost}/ping`;
+      try {
+        const agent = utils.makeAgent({
+          rejectUnauthorized: false
+        });
+        response = await httpClient.get(url, {
+          agent,
+          fetch: async (input, init) => {
+            called = true;
+            dispatcher = init?.dispatcher;
+            return globalThis.fetch(input, init);
+          }
+        });
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(200);
+      called.should.be.true;
+      should.not.exist(dispatcher);
+    });
+  }
+
   // test local self-signed cert; node uses an agent to accept it, karma
   // launches the browser with `--ignore-certificate-errors`
   it('can ping HTTPS test server', async () => {
