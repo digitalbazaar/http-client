@@ -1,32 +1,19 @@
 /*!
  * Copyright (c) 2020-2026 Digital Bazaar, Inc.
  */
-import * as utils from './utils.js';
 import {
   DEFAULT_HEADERS,
   httpClient,
   ky
 } from '../lib/index.js';
-import {convertAgent} from '../lib/agentCompatibility.js';
-import isNode from 'detect-node';
+import {describe, inject, it} from 'vitest';
 import {replaceOption} from 'ky';
 
+// tests shared by the `node` and `browser` projects; environment-specific
+// tests live in `20-node.spec.js` and `30-browser.spec.js`
 describe('http-client API', () => {
-  // start/close local test server
-  let serverInfo;
-  let httpHost;
-  let httpsHost;
-  before(async () => {
-    serverInfo = await utils.startServers();
-    httpHost = serverInfo.httpHost;
-    httpsHost = serverInfo.httpsHost;
-  });
-  after(async () => {
-    await Promise.all([
-      serverInfo.httpServer.close(),
-      serverInfo.httpsServer.close()
-    ]);
-  });
+  // local test servers are started once by `tests/globalSetup.js`
+  const httpHost = inject('httpHost');
 
   it('has proper exports', async () => {
     should.exist(ky);
@@ -102,147 +89,12 @@ describe('http-client API', () => {
     response.data.echo.should.deep.equal(payload);
   });
 
-  if(isNode) {
-    // `ky` supports `options` as a `method` value but exposes no helper for
-    // it, so it has to reach `ky` through the direct-call fall-through.
-    // Node only: in a browser this needs the server to list OPTIONS in its
-    // CORS `Access-Control-Allow-Methods`, which the default `cors()` used by
-    // the test server does not.
-    it('supports a non-proxied method via the `method` option', async () => {
-      let err;
-      let response;
-      const url = `http://${httpHost}/headers`;
-      try {
-        response = await httpClient(url, {method: 'options'});
-      } catch(e) {
-        err = e;
-      }
-      should.not.exist(err);
-      should.exist(response);
-      response.status.should.equal(204);
-    });
-  }
-
   it('can ping HTTP test server', async () => {
     let err;
     let response;
     const url = `http://${httpHost}/ping`;
     try {
       response = await httpClient.get(url);
-    } catch(e) {
-      err = e;
-    }
-    should.not.exist(err);
-    should.exist(response);
-    should.exist(response.status);
-    should.exist(response.data);
-    response.status.should.equal(200);
-  });
-
-  if(isNode) {
-    // test HTTPS against a real external site; node only, since the site
-    // sends no CORS headers and a browser would block the request
-    // NOTE: might get rate limited
-    it('can use HTTPS on github.com', async () => {
-      let err;
-      let response;
-      const url = 'https://github.com/';
-      try {
-        response = await httpClient.get(url);
-      } catch(e) {
-        err = e;
-      }
-      should.not.exist(err);
-      should.exist(response);
-      should.exist(response.status);
-      should.exist(response.data);
-      response.status.should.equal(200);
-      const ct = response.headers.get('content-type');
-      should.exist(ct);
-      ct.includes('application/json').should.be.true;
-    });
-
-    // exercises the agent path with a request body: on an incompatible
-    // runtime the body + headers must survive the Request -> (url, init)
-    // decomposition, on a compatible one it rides the native dispatcher path
-    it('can POST a body over an HTTPS agent', async () => {
-      let err;
-      let response;
-      const url = `https://${httpsHost}/echo`;
-      const payload = {hello: 'world', n: 42, nested: {ok: true}};
-      try {
-        const agent = utils.makeAgent({
-          rejectUnauthorized: false
-        });
-        response = await httpClient.post(url, {agent, json: payload});
-      } catch(e) {
-        err = e;
-      }
-      should.not.exist(err);
-      should.exist(response);
-      response.status.should.equal(200);
-      should.exist(response.data);
-      should.exist(response.data.echo);
-      response.data.echo.should.deep.equal(payload);
-    });
-  }
-
-  if(isNode) {
-    // a custom `fetch` (e.g. from another library) is used as given; agent
-    // conversion must neither replace it nor slip it a `dispatcher`
-    it('keeps a custom `fetch` when an agent is given', async () => {
-      let err;
-      let response;
-      let called = false;
-      let dispatcher;
-      const url = `http://${httpHost}/ping`;
-      try {
-        const agent = utils.makeAgent({
-          rejectUnauthorized: false
-        });
-        response = await httpClient.get(url, {
-          agent,
-          fetch: async (input, init) => {
-            called = true;
-            dispatcher = init?.dispatcher;
-            return globalThis.fetch(input, init);
-          }
-        });
-      } catch(e) {
-        err = e;
-      }
-      should.not.exist(err);
-      should.exist(response);
-      response.status.should.equal(200);
-      called.should.be.true;
-      should.not.exist(dispatcher);
-    });
-
-    // an agent is converted once and reused, so its connections are pooled
-    // across requests instead of each request building a new dispatcher
-    it('reuses the conversion of the same agent', async () => {
-      const agent = utils.makeAgent({rejectUnauthorized: false});
-      const otherAgent = utils.makeAgent({rejectUnauthorized: false});
-      // a compatible platform gets a `dispatcher`, others a `fetch` override
-      const converted = options => options.dispatcher ?? options.fetch;
-      const first = converted(convertAgent({agent}));
-      should.exist(first);
-      converted(convertAgent({agent})).should.equal(first);
-      converted(convertAgent({agent: otherAgent})).should.not.equal(first);
-    });
-  }
-
-  // test local self-signed cert; node uses an agent to accept it, karma
-  // launches the browser with `--ignore-certificate-errors`
-  it('can ping HTTPS test server', async () => {
-    let err;
-    let response;
-    const url = `https://${httpsHost}/ping`;
-    try {
-      const agent = utils.makeAgent({
-        rejectUnauthorized: false
-      });
-      response = await httpClient.get(url, {agent});
     } catch(e) {
       err = e;
     }
@@ -278,7 +130,6 @@ describe('http-client API', () => {
     // the intention here is to use an unused http port
     // the port cannot be higher than 65535 (which is invalid)
     const nonExistentResource = 'https://localhost:65535';
-    const expectedErrorCode = 'ECONNREFUSED';
     // replace the default Accept with text/plain to get around
     // possibly sending a CORS pre-flight
     const headers = {Accept: 'text/plain'};
@@ -304,42 +155,7 @@ describe('http-client API', () => {
       `Expected nonExistentResource "err.requestUrl" to be ` +
         `${nonExistentResource}`
     );
-    // ky wraps fetch's error in a `NetworkError`, and node's fetch places the
-    // system error in its own error's `cause`; chrome's fetch errors don't
-    // contain a code at all
-    if(isNode) {
-      let cause = err;
-      while(cause && !cause.code) {
-        cause = cause.cause;
-      }
-      should.exist(cause, 'Expected an error code in the "cause" chain.');
-      cause.code.should.equal(
-        expectedErrorCode,
-        `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
-      );
-    }
   });
-
-  if(!isNode) {
-    // browser check for endpoint without CORS
-    it('handles a CORS error', async () => {
-      let err;
-      let response;
-      const url = `http://${httpHost}/nocors`;
-      try {
-        response = await httpClient.get(url);
-      } catch(e) {
-        err = e;
-      }
-      should.not.exist(response);
-      should.exist(err);
-      err.message.should.equal(
-        `Failed to fetch "${url}". Possible CORS error.`);
-      should.not.exist(err.response);
-      should.exist(err.requestUrl);
-      err.requestUrl.should.equal(url);
-    });
-  }
 
   // a browser's `fetch` rejects a CORS failure with a bare
   // `TypeError: Failed to fetch`; simulate it so node covers the message too
@@ -639,50 +455,6 @@ describe('http-client API', () => {
     err.data.code.should.equal(404);
     err.data.description.should.equal('Not Found');
   });
-
-  if(isNode) {
-    describe('Nodejs execution context', () => {
-      it('handles a network error', async () => {
-        let err;
-        let response;
-        try {
-          response = await httpClient.get(
-            'http://localhost:9876/does-not-exist');
-        } catch(e) {
-          err = e;
-        }
-        should.not.exist(response);
-        should.exist(err);
-        err.message.should.satisfy(m =>
-          m.includes(
-            'request to http://localhost:9876/does-not-exist failed, reason: ' +
-            'connect ECONNREFUSED 127.0.0.1:9876') ||
-            // node 18.x +
-            m.includes('fetch failed') ||
-            // node 22+ / ky@2
-            m.includes(
-              'Request failed due to a network error: ' +
-              'GET http://localhost:9876/does-not-exist'));
-      });
-    });
-  } else {
-    describe('Browser execution context', () => {
-      it('should give a meaningful CORS error', async () => {
-        let err;
-        let response;
-        try {
-          response = await httpClient.get('https://example.com');
-        } catch(e) {
-          err = e;
-        }
-        should.not.exist(response);
-        should.exist(err);
-        // failed to fetch may commonly be due to an issue with CORS
-        err.message.should
-          .equal('Failed to fetch "https://example.com". Possible CORS error.');
-      });
-    });
-  }
 
   describe('extend (custom client)', () => {
     it('adds an Authorization header to all requests', async () => {
