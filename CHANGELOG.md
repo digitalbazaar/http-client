@@ -5,6 +5,13 @@
 ### Added
 - Proxy the `query` method (`httpClient.query`), added in `ky@2.1`.
 
+### Fixed
+- Merge `create()` header overrides case-insensitively. An `accept` override
+  was combined with the default `Accept` instead of replacing it.
+- Keep `create()` headers given as a `Headers` instance. They were dropped.
+- Support `ky`'s `replaceOption()` for `headers` in `create()` and
+  `extend()`. In `create()` it replaces the default headers.
+
 ### Changed
 - **BREAKING**: Revert CJS related workarounds from v3.0.0.
   - `kyPromise` no longer exported.

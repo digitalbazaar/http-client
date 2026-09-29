@@ -8,6 +8,7 @@ import {
   ky
 } from '../lib/index.js';
 import isNode from 'detect-node';
+import {replaceOption} from 'ky';
 
 describe('http-client API', () => {
   // start/close local test server
@@ -340,16 +341,19 @@ describe('http-client API', () => {
     accept.should.equal('text/html');
   });
 
+  // a lowercase name must replace the default `Accept`, not be combined
+  // with it
   it('can use create() to provide default headers', async () => {
     let err;
     let response;
     const url = `http://${httpHost}/headers`;
     try {
-      response = await httpClient.get(url, {
+      const client = httpClient.create({
         headers: {
           accept: 'text/html'
         }
       });
+      response = await client.get(url);
     } catch(e) {
       err = e;
     }
@@ -361,6 +365,28 @@ describe('http-client API', () => {
     response.status.should.equal(200);
     const {accept} = response.data.headers;
     accept.should.equal('text/html');
+  });
+
+  it('can use create() with a `Headers` instance', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: new Headers({Authorization: 'Bearer 12345'})
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    const {accept, authorization} = response.data.headers;
+    accept.should.equal('application/ld+json, application/json');
+    authorization.should.equal('Bearer 12345');
   });
 
   it('handles a successful get with JSON data', async () => {
@@ -534,6 +560,32 @@ describe('http-client API', () => {
       response.status.should.equal(200);
       const {authorization: authzHeader} = response.data.headers;
       authzHeader.should.equal('Bearer 12345');
+    });
+
+    it('replaces parent headers with `replaceOption()`', async () => {
+      const parent = httpClient.extend({
+        headers: {Authorization: 'Bearer 12345'}
+      });
+      const client = parent.extend({
+        headers: replaceOption({accept: 'text/plain'})
+      });
+
+      let err;
+      let response;
+      const url = `http://${httpHost}/headers`;
+      try {
+        response = await client.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(200);
+      should.exist(response.data);
+      should.exist(response.data.headers);
+      const {accept, authorization} = response.data.headers;
+      accept.should.equal('text/plain');
+      should.not.exist(authorization);
     });
   });
 });
