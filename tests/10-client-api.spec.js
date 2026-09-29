@@ -34,6 +34,15 @@ describe('http-client API', () => {
     ky.should.be.a('function');
   });
 
+  // the wrapper API is deliberately all async, including this getter; it
+  // dates from keeping the CJS and ESM builds consistent and is kept so
+  // calling code does not have to change
+  it('resolves `stop` to `ky.stop` from an async getter', async () => {
+    const stop = httpClient.stop;
+    stop.should.be.an.instanceof(Promise);
+    (await stop).should.equal(ky.stop);
+  });
+
   // guards against the proxied set drifting from `ky`'s helper registry in
   // either direction: proxying indexes into `ky[method]`, so a name `ky` does
   // not implement would throw on first call, and a helper `ky` adds should be
