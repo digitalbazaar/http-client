@@ -1,20 +1,15 @@
 /*!
  * Copyright (c) 2018-2026 Digital Bazaar, Inc.
  */
-'use strict';
+import cors from 'cors';
+import express from 'express';
+import fs from 'node:fs/promises';
+import http from 'node:http';
+import https from 'node:https';
+import path from 'node:path';
+import {setTimeout} from 'node:timers/promises';
 
-const {setTimeout} = require('node:timers/promises');
-const cors = require('cors');
-const express = require('express');
-const fs = require('node:fs').promises;
-const http = require('node:http');
-const https = require('node:https');
-const path = require('node:path');
-
-const api = {};
-module.exports = api;
-
-api.startServers = async () => {
+export async function startServers() {
   let _httpResolve;
   let _httpsResolve;
   const _httpStarted = new Promise(resolve => {
@@ -23,8 +18,10 @@ api.startServers = async () => {
   const _httpsStarted = new Promise(resolve => {
     _httpsResolve = resolve;
   });
-  const key = await fs.readFile(path.join(__dirname, './test-server.key'));
-  const cert = await fs.readFile(path.join(__dirname, './test-server.crt'));
+  const key =
+    await fs.readFile(path.join(import.meta.dirname, './test-server.key'));
+  const cert =
+    await fs.readFile(path.join(import.meta.dirname, './test-server.crt'));
   const app = createApp();
   const httpServer = http.createServer(app).listen({
     host: '0.0.0.0',
@@ -53,11 +50,11 @@ api.startServers = async () => {
     httpHost,
     httpsHost
   };
-};
+}
 
-api.makeAgent = options => {
+export function makeAgent(options) {
   return https.Agent(options);
-};
+}
 
 function createApp() {
   const app = express();
@@ -86,6 +83,12 @@ function createApp() {
     res.status(404).send('NOT FOUND');
   });
 
+  app.get('/error/message', cors(), (req, res) => {
+    res.status(400).json({
+      message: 'Invalid widget.'
+    });
+  });
+
   // emulate https://httpstat.us/404
   app.get('/404', cors(), (req, res) => {
     res.status(404).json({
@@ -99,6 +102,8 @@ function createApp() {
     res.status(200).send();
   });
 
+  // handle CORS preflight for non-simple request headers (e.g. Authorization)
+  app.options('/headers', cors());
   app.get('/headers', cors(), (req, res) => {
     res.json({
       headers: req.headers
@@ -112,6 +117,15 @@ function createApp() {
   });
 
   app.post('/echo', cors(), express.json(), (req, res) => {
+    res.json({
+      echo: req.body
+    });
+  });
+
+  // the default `cors()` methods do not include QUERY, so list it for the
+  // preflight a browser sends before a QUERY request
+  app.options('/query', cors({methods: 'QUERY'}));
+  app.query('/query', cors(), express.json(), (req, res) => {
     res.json({
       echo: req.body
     });
