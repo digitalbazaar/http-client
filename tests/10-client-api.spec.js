@@ -247,10 +247,15 @@ describe('http-client API', () => {
       `Expected nonExistentResource "err.requestUrl" to be ` +
         `${nonExistentResource}`
     );
-    // in node 18 global fetch places the error code in err.cause
-    const cause = err.cause || err;
-    // chrome's fetch errors don't contain a code at all
-    if(cause.code) {
+    // ky wraps fetch's error in a `NetworkError`, and node's fetch places the
+    // system error in its own error's `cause`; chrome's fetch errors don't
+    // contain a code at all
+    if(isNode) {
+      let cause = err;
+      while(cause && !cause.code) {
+        cause = cause.cause;
+      }
+      should.exist(cause, 'Expected an error code in the "cause" chain.');
       cause.code.should.equal(
         expectedErrorCode,
         `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
