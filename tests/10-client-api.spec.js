@@ -159,14 +159,48 @@ describe('http-client API', () => {
 
   // a browser's `fetch` rejects a CORS failure with a bare
   // `TypeError: Failed to fetch`; simulate it so node covers the message too
-  it('reports a possible CORS error for a failed fetch', async () => {
+  // each engine's wording, including the host-suffixed Chromium and WebKit
+  // variants, is simulated so node covers them all
+  for(const message of [
+    'Failed to fetch',
+    'Failed to fetch (example.com)',
+    'NetworkError when attempting to fetch resource.',
+    'Load failed',
+    'Load failed (example.com)'
+  ]) {
+    it(`reports a possible CORS error for a failed fetch: ${message}`,
+      async () => {
+        let err;
+        let response;
+        const url = `http://${httpHost}/ping`;
+        try {
+          response = await httpClient.get(url, {
+            fetch: async () => {
+              throw new TypeError(message);
+            },
+            // skip ky's retry backoff for a network error
+            retry: 0
+          });
+        } catch(e) {
+          err = e;
+        }
+        should.not.exist(response);
+        should.exist(err);
+        err.message.should.equal(
+          `Failed to fetch "${url}". Possible CORS error.`);
+        err.requestUrl.should.equal(url);
+      });
+  }
+
+  // there is no CORS in Node.js, so its network error gets no CORS hint
+  it('does not report a possible CORS error for `fetch failed`', async () => {
     let err;
     let response;
     const url = `http://${httpHost}/ping`;
     try {
       response = await httpClient.get(url, {
         fetch: async () => {
-          throw new TypeError('Failed to fetch');
+          throw new TypeError('fetch failed');
         },
         // skip ky's retry backoff for a network error
         retry: 0
@@ -176,7 +210,7 @@ describe('http-client API', () => {
     }
     should.not.exist(response);
     should.exist(err);
-    err.message.should.equal(`Failed to fetch "${url}". Possible CORS error.`);
+    err.message.should.not.contain('Possible CORS error');
     err.requestUrl.should.equal(url);
   });
 

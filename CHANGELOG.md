@@ -18,7 +18,9 @@
 - Detect a possible CORS error in Firefox and WebKit, not just Chromium. The
   `Failed to fetch "<url>". Possible CORS error.` message was produced by
   matching Chromium's network-error text, so other engines fell through to a
-  generic error. Firefox and WebKit wording is now recognized as well.
+  generic error. Firefox and WebKit wording is now recognized as well, as are
+  the Chromium and WebKit variants with a host suffix, such as
+  `Failed to fetch (example.com)`.
 
 ### Changed
 - **BREAKING**: Revert CJS related workarounds from v3.0.0.
