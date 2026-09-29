@@ -83,6 +83,12 @@ function createApp() {
     res.status(404).send('NOT FOUND');
   });
 
+  app.get('/error/message', cors(), (req, res) => {
+    res.status(400).json({
+      message: 'Invalid widget.'
+    });
+  });
+
   // emulate https://httpstat.us/404
   app.get('/404', cors(), (req, res) => {
     res.status(404).json({

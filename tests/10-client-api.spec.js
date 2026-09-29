@@ -475,6 +475,21 @@ describe('http-client API', () => {
     err.data.description.should.equal('Not Found');
   });
 
+  it('uses the message from a JSON error body', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/error/message`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.status.should.equal(400);
+    err.message.should.equal('Invalid widget.');
+  });
+
   it('handles a direct get not found error with JSON data', async () => {
     let err;
     let response;
