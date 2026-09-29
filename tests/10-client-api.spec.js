@@ -405,6 +405,31 @@ describe('http-client API', () => {
     authorization.should.equal('Bearer 12345');
   });
 
+  // like ky, an `undefined` value deletes the header rather than sending
+  // the string 'undefined'
+  it('can use create() to remove a default header', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: {
+          Accept: undefined
+        }
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    // fetch sends its own default when no `Accept` is set
+    response.data.headers.accept.should.equal('*/*');
+  });
+
   it('handles a successful get with JSON data', async () => {
     let err;
     let response;
