@@ -2,6 +2,7 @@
 *.sw[nop]
 *~
 .cache
+.vitest-attachments
 .nyc_output
 .project
 .settings
@@ -9,5 +10,6 @@
 TAGS
 coverage
 dist
+__screenshots__
 node_modules
 reports

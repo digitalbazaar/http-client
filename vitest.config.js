@@ -12,7 +12,10 @@ export default defineConfig({
     // `coverage` is process-wide: it can only be set at the root, never
     // inside a project, and applies across every project in the run
     coverage: {
-      provider: 'v8',
+      // `istanbul` rather than `v8`: v8 coverage is gathered over CDP, which
+      // only Chromium supports, and the browser project runs in Firefox and
+      // WebKit as well
+      provider: 'istanbul',
       reporter: ['lcov', 'text-summary', 'text'],
       include: ['lib/**/*.js']
     },
@@ -39,11 +42,25 @@ export default defineConfig({
             headless: true,
             provider: playwright({
               launchOptions: {
-                // required to launch Chromium in CI containers
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
+                // needed to launch Chromium in CI containers; `playwright`
+                // applies this only to Chromium, so it is safe to set for
+                // every instance (a raw `--no-sandbox` arg is not -- WebKit
+                // rejects unknown options and fails to launch)
+                chromiumSandbox: false
               }
             }),
-            instances: [{browser: 'chromium'}]
+            /*
+            The `Possible CORS error` message in `lib/httpClient.js` keys off
+            the browser's own network-error text, which differs per engine, so
+            each engine has to be exercised to keep that mapping honest. The
+            shared `10-client-api.spec.js` runs per instance as well, which is
+            what catches any other behavior difference between engines.
+            */
+            instances: [
+              {browser: 'chromium'},
+              {browser: 'firefox'},
+              {browser: 'webkit'}
+            ]
           }
         }
       }
