@@ -25,6 +25,8 @@
     `undefined` unless the content type included `json`.
   - Code using `if(error.data)` as a "the server sent JSON" test needs
     updating; an HTML error page from a proxy now makes it truthy.
+  - Reading the body from `error.response` (`.json()`, `.text()`, etc.) now
+    throws, since `ky@2` has already consumed it. Use `error.data` instead.
 - **BREAKING**: Update dependencies:
   - `ky@2.1`.
     - For most use cases the wrapped API is expected to be the same.
