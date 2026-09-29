@@ -116,5 +116,14 @@ function createApp() {
     });
   });
 
+  // the default `cors()` methods do not include QUERY, so list it for the
+  // preflight a browser sends before a QUERY request
+  app.options('/query', cors({methods: 'QUERY'}));
+  app.query('/query', cors(), express.json(), (req, res) => {
+    res.json({
+      echo: req.body
+    });
+  });
+
   return app;
 }

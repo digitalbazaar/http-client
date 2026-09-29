@@ -2,6 +2,9 @@
 
 ## 5.0.0 - 2026-xx-xx
 
+### Added
+- Proxy the `query` method (`httpClient.query`), added in `ky@2.1`.
+
 ### Changed
 - **BREAKING**: Revert CJS related workarounds from v3.0.0.
   - `kyPromise` no longer exported.
@@ -16,7 +19,7 @@
   - Code using `if(error.data)` as a "the server sent JSON" test needs
     updating; an HTML error page from a proxy now makes it truthy.
 - **BREAKING**: Update dependencies:
-  - `ky@2`.
+  - `ky@2.1`.
     - For most use cases the wrapped API is expected to be the same.
     - See `ky` docs for exported `ky` API changes.
     - Note that some errors can now have `cause` property chains and may use a

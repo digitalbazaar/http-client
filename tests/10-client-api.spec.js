@@ -38,7 +38,7 @@ describe('http-client API', () => {
   // would throw on first call rather than fail here
   it('proxies only methods that `ky` implements', async () => {
     const proxied = [
-      'get', 'post', 'put', 'patch', 'head', 'delete'
+      'get', 'post', 'put', 'patch', 'head', 'delete', 'query'
     ];
     for(const method of proxied) {
       ky[method].should.be.a('function', `ky.${method} is missing`);
@@ -46,11 +46,47 @@ describe('http-client API', () => {
         'function', `httpClient.${method} is missing`);
     }
     // methods `ky` has no helper for must not be proxied
-    for(const method of ['query', 'options', 'trace']) {
+    for(const method of ['options', 'trace']) {
       should.not.exist(ky[method], `ky.${method} unexpectedly exists`);
       should.not.exist(
         httpClient[method], `httpClient.${method} must not be proxied`);
     }
+  });
+
+  it('supports the proxied `query` method', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/query`;
+    const payload = {hello: 'world', n: 42, nested: {ok: true}};
+    try {
+      response = await httpClient.query(url, {json: payload});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.echo);
+    response.data.echo.should.deep.equal(payload);
+  });
+
+  it('routes a `query` method option through the proxy', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/query`;
+    const payload = {hello: 'world'};
+    try {
+      response = await httpClient(url, {method: 'query', json: payload});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    // `data` is only set by the proxied path
+    should.exist(response.data);
+    response.data.echo.should.deep.equal(payload);
   });
 
   if(isNode) {
