@@ -7,6 +7,7 @@ import {
   httpClient,
   ky
 } from '../lib/index.js';
+import {convertAgent} from '../lib/agentCompatibility.js';
 import isNode from 'detect-node';
 import {replaceOption} from 'ky';
 
@@ -215,6 +216,19 @@ describe('http-client API', () => {
       response.status.should.equal(200);
       called.should.be.true;
       should.not.exist(dispatcher);
+    });
+
+    // an agent is converted once and reused, so its connections are pooled
+    // across requests instead of each request building a new dispatcher
+    it('reuses the conversion of the same agent', async () => {
+      const agent = utils.makeAgent({rejectUnauthorized: false});
+      const otherAgent = utils.makeAgent({rejectUnauthorized: false});
+      // a compatible platform gets a `dispatcher`, others a `fetch` override
+      const converted = options => options.dispatcher ?? options.fetch;
+      const first = converted(convertAgent({agent}));
+      should.exist(first);
+      converted(convertAgent({agent})).should.equal(first);
+      converted(convertAgent({agent: otherAgent})).should.not.equal(first);
     });
   }
 
