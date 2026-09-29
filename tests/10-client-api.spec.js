@@ -295,6 +295,29 @@ describe('http-client API', () => {
     });
   }
 
+  // a browser's `fetch` rejects a CORS failure with a bare
+  // `TypeError: Failed to fetch`; simulate it so node covers the message too
+  it('reports a possible CORS error for a failed fetch', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/ping`;
+    try {
+      response = await httpClient.get(url, {
+        fetch: async () => {
+          throw new TypeError('Failed to fetch');
+        },
+        // skip ky's retry backoff for a network error
+        retry: 0
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.equal(`Failed to fetch "${url}". Possible CORS error.`);
+    err.requestUrl.should.equal(url);
+  });
+
   it('handles a TimeoutError error', async () => {
     let err;
     let response;
