@@ -499,6 +499,29 @@ describe('http-client API', () => {
     response.data.headers.accept.should.equal('*/*');
   });
 
+  it('can use create() to replace the default headers', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: replaceOption({Authorization: 'Bearer 12345'})
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    const {accept, authorization} = response.data.headers;
+    // fetch sends its own default when no `Accept` is set
+    accept.should.equal('*/*');
+    authorization.should.equal('Bearer 12345');
+  });
+
   it('handles a successful get with JSON data', async () => {
     let err;
     let response;
