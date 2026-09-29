@@ -2,7 +2,7 @@
 *.sw[nop]
 *~
 .cache
-.vitest-attachments
+.vitest
 .nyc_output
 .project
 .settings
