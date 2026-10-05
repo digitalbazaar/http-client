@@ -33,15 +33,15 @@ cd http-client
 npm install
 ```
 
-### Usage
+## Usage
 
-#### Import httpClient (Node.js, browsers, or React Native)
+### Import httpClient (Node.js, browsers, or React Native)
 
 ```js
 import {httpClient} from '@digitalbazaar/http-client';
 ```
 
-#### Import and initialize a custom Bearer Token client
+### Import and initialize a custom Bearer Token client
 
 ```js
 import {httpClient} from '@digitalbazaar/http-client';
@@ -54,7 +54,7 @@ const client = httpClient.extend({headers});
 // subsequent http calls will include an 'Authorization: Bearer 12345' header
 ```
 
-#### Disable self-signed TLS/SSL cert checks for development purposes only
+### Disable self-signed TLS/SSL cert checks for development purposes only
 
 ```js
 import {Agent} from 'https';
@@ -66,7 +66,7 @@ const client = httpClient.extend({headers, agent});
 // subsequent http calls will use the provided https Agent
 ```
 
-#### GET a JSON response in the browser
+### GET a JSON response in the browser
 
 ```js
 try {
@@ -80,7 +80,7 @@ try {
 }
 ```
 
-#### GET a JSON response in Node with an HTTP Agent
+### GET a JSON response in Node with an HTTP Agent
 
 ```js
 import https from 'https';
@@ -97,7 +97,7 @@ try {
 }
 ```
 
-#### GET HTML by overriding default headers
+### GET HTML by overriding default headers
 
 ```js
 const headers = {Accept: 'text/html'};
@@ -113,7 +113,7 @@ try {
 }
 ```
 
-#### POST a JSON payload
+### POST a JSON payload
 
 ```js
 try {
@@ -130,7 +130,7 @@ try {
 }
 ```
 
-#### POST a JSON payload in Node with an HTTP Agent
+### POST a JSON payload in Node with an HTTP Agent
 
 ```js
 import https from 'https';
