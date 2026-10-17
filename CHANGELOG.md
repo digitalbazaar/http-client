@@ -11,10 +11,6 @@
 - Keep `create()` headers given as a `Headers` instance. They were dropped.
 - Support `ky`'s `replaceOption()` for `headers` in `create()` and
   `extend()`. In `create()` it replaces the default headers.
-- Resolve `agentCompatibility` through an `exports` `browser` condition rather
-  than only the top-level `browser` field. Bundlers that do not apply the
-  `browser` field to package-internal relative imports (such as Vite) no longer
-  pull `undici` into browser builds.
 - Detect a possible CORS error in Firefox and WebKit, not just Chromium. The
   `Failed to fetch "<url>". Possible CORS error.` message was produced by
   matching Chromium's network-error text, so other engines fell through to a
