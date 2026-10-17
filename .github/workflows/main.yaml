@@ -42,7 +42,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Run tests with Node.js ${{ matrix.node-version }}
-      run: npm run test-node
+      run: npm run test:node
   test-browser:
     runs-on: ubuntu-latest
     # three browser engines plus a cold browser install
@@ -62,7 +62,7 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps chromium firefox webkit
     - name: Run browser tests
-      run: npm run test-browser
+      run: npm run test:browser
   coverage:
     runs-on: ubuntu-latest
     # the browser project runs here too, across three engines
@@ -83,7 +83,7 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps chromium firefox webkit
     - name: Generate coverage report
-      run: npm run coverage-ci
+      run: npm run coverage:ci
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
       with:

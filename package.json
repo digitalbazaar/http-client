@@ -22,11 +22,11 @@
   },
   "scripts": {
     "test": "vitest run",
-    "test-node": "vitest run --project node",
-    "test-browser": "vitest run --project browser",
-    "test-watch": "vitest",
+    "test:node": "vitest run --project node",
+    "test:browser": "vitest run --project browser",
+    "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "coverage-ci": "vitest run --coverage --coverage.reporter=lcovonly --coverage.reporter=text-summary --coverage.reporter=text",
+    "coverage:ci": "vitest run --coverage --coverage.reporter=lcovonly --coverage.reporter=text-summary --coverage.reporter=text",
     "lint": "eslint"
   },
   "files": [

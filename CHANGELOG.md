@@ -59,8 +59,10 @@
   - Browser tests now run via `playwright` instead of `karma`, in Chromium,
     Firefox, and WebKit rather than Chromium alone.
   - `npm test` now runs both the Node.js and browser suites; use
-    `npm run test-node` or `npm run test-browser` for one of them.
-  - `npm run test-karma` is replaced by `npm run test-browser`.
+    `npm run test:node` or `npm run test:browser` for one of them.
+  - `npm run test-karma` is replaced by `npm run test:browser`.
+  - npm scripts use `group:variant` names: `test:node`, `test:browser`,
+    `test:watch`, and `coverage:ci`.
   - `npm run coverage-report` is removed; use
     `npm run coverage -- --coverage.reporter=html`.
   - Coverage now includes the browser suite, and reported totals shift
