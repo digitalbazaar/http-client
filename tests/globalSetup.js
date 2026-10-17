@@ -13,7 +13,15 @@ export default async function setup(project) {
   project.provide('httpsHost', httpsHost);
 
   return async () => {
-    httpServer.close();
-    httpsServer.close();
+    await Promise.all([httpServer, httpsServer].map(server => {
+      const closed = new Promise((resolve, reject) => {
+        server.close(err => err ? reject(err) : resolve());
+      });
+      // `close()` only stops new connections; drop open keep-alive and
+      // in-flight ones too, so it finishes without waiting for them to time
+      // out
+      server.closeAllConnections();
+      return closed;
+    }));
   };
 }
