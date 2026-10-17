@@ -1,12 +1,7 @@
 /*!
  * Copyright (c) 2023-2026 Digital Bazaar, Inc.
  */
-'use strict';
-
-const api = {};
-module.exports = api;
-
-api.startServers = async () => {
+export async function startServers() {
   return {
     // mock server
     // karma will startup real server
@@ -22,4 +17,11 @@ api.startServers = async () => {
     httpHost: process.env.TEST_HTTP_HOST,
     httpsHost: process.env.TEST_HTTPS_HOST
   };
-};
+}
+
+// unused in the browser; the test that calls this is guarded by `isNode`,
+// but it must still exist so webpack's static export check on the
+// `import * as utils` namespace succeeds
+export function makeAgent() {
+  return undefined;
+}

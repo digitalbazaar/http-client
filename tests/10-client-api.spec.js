@@ -1,13 +1,739 @@
 /*!
  * Copyright (c) 2020-2026 Digital Bazaar, Inc.
  */
+import * as utils from './utils.js';
 import {
   DEFAULT_HEADERS,
   httpClient,
-  kyPromise
+  ky
 } from '../lib/index.js';
+import {convertAgent} from '../lib/agentCompatibility.js';
 import isNode from 'detect-node';
-import {test} from './10-client-api.spec.common.cjs';
-import utils from './utils.cjs';
+import {replaceOption} from 'ky';
 
-test({kyPromise, httpClient, DEFAULT_HEADERS, isNode, utils});
+describe('http-client API', () => {
+  // start/close local test server
+  let serverInfo;
+  let httpHost;
+  let httpsHost;
+  before(async () => {
+    serverInfo = await utils.startServers();
+    httpHost = serverInfo.httpHost;
+    httpsHost = serverInfo.httpsHost;
+  });
+  after(async () => {
+    await Promise.all([
+      serverInfo.httpServer.close(),
+      serverInfo.httpsServer.close()
+    ]);
+  });
+
+  it('has proper exports', async () => {
+    should.exist(ky);
+    DEFAULT_HEADERS.should.have.keys(['Accept']);
+    httpClient.should.be.a('function');
+    ky.should.be.a('function');
+  });
+
+  // the wrapper API is deliberately all async, including this getter; it
+  // dates from keeping the CJS and ESM builds consistent and is kept so
+  // calling code does not have to change
+  it('resolves `stop` to `ky.stop` from an async getter', async () => {
+    const stop = httpClient.stop;
+    stop.should.be.an.instanceof(Promise);
+    (await stop).should.equal(ky.stop);
+  });
+
+  // guards against the proxied set drifting from `ky`'s helper registry in
+  // either direction: proxying indexes into `ky[method]`, so a name `ky` does
+  // not implement would throw on first call, and a helper `ky` adds should be
+  // proxied deliberately (it is new public API) rather than go unnoticed
+  it('proxies exactly the methods that `ky` implements', async () => {
+    const proxied = [
+      'get', 'post', 'put', 'patch', 'head', 'delete', 'query'
+    ];
+    Object.keys(httpClient)
+      .filter(key => !['create', 'extend'].includes(key))
+      .sort().should.deep.equal(
+        [...proxied].sort(),
+        '`httpClient` methods differ from the proxied methods');
+    // `ky` functions that are not request helpers
+    const notHelpers = ['create', 'extend', 'retry'];
+    const helpers = Object.keys(ky).filter(
+      key => typeof ky[key] === 'function' && !notHelpers.includes(key));
+    helpers.sort().should.deep.equal(
+      [...proxied].sort(),
+      '`ky` request helpers differ from the proxied methods');
+  });
+
+  it('supports the proxied `query` method', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/query`;
+    const payload = {hello: 'world', n: 42, nested: {ok: true}};
+    try {
+      response = await httpClient.query(url, {json: payload});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.echo);
+    response.data.echo.should.deep.equal(payload);
+  });
+
+  it('routes a `query` method option through the proxy', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/query`;
+    const payload = {hello: 'world'};
+    try {
+      response = await httpClient(url, {method: 'query', json: payload});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    // `data` is only set by the proxied path
+    should.exist(response.data);
+    response.data.echo.should.deep.equal(payload);
+  });
+
+  if(isNode) {
+    // `ky` supports `options` as a `method` value but exposes no helper for
+    // it, so it has to reach `ky` through the direct-call fall-through.
+    // Node only: in a browser this needs the server to list OPTIONS in its
+    // CORS `Access-Control-Allow-Methods`, which the default `cors()` used by
+    // the test server does not.
+    it('supports a non-proxied method via the `method` option', async () => {
+      let err;
+      let response;
+      const url = `http://${httpHost}/headers`;
+      try {
+        response = await httpClient(url, {method: 'options'});
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(204);
+    });
+  }
+
+  it('can ping HTTP test server', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/ping`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+  });
+
+  if(isNode) {
+    // test HTTPS against a real external site; node only, since the site
+    // sends no CORS headers and a browser would block the request
+    // NOTE: might get rate limited
+    it('can use HTTPS on github.com', async () => {
+      let err;
+      let response;
+      const url = 'https://github.com/';
+      try {
+        response = await httpClient.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      should.exist(response.status);
+      should.exist(response.data);
+      response.status.should.equal(200);
+      const ct = response.headers.get('content-type');
+      should.exist(ct);
+      ct.includes('application/json').should.be.true;
+    });
+
+    // exercises the agent path with a request body: on an incompatible
+    // runtime the body + headers must survive the Request -> (url, init)
+    // decomposition, on a compatible one it rides the native dispatcher path
+    it('can POST a body over an HTTPS agent', async () => {
+      let err;
+      let response;
+      const url = `https://${httpsHost}/echo`;
+      const payload = {hello: 'world', n: 42, nested: {ok: true}};
+      try {
+        const agent = utils.makeAgent({
+          rejectUnauthorized: false
+        });
+        response = await httpClient.post(url, {agent, json: payload});
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(200);
+      should.exist(response.data);
+      should.exist(response.data.echo);
+      response.data.echo.should.deep.equal(payload);
+    });
+  }
+
+  if(isNode) {
+    // a custom `fetch` (e.g. from another library) is used as given; agent
+    // conversion must neither replace it nor slip it a `dispatcher`
+    it('keeps a custom `fetch` when an agent is given', async () => {
+      let err;
+      let response;
+      let called = false;
+      let dispatcher;
+      const url = `http://${httpHost}/ping`;
+      try {
+        const agent = utils.makeAgent({
+          rejectUnauthorized: false
+        });
+        response = await httpClient.get(url, {
+          agent,
+          fetch: async (input, init) => {
+            called = true;
+            dispatcher = init?.dispatcher;
+            return globalThis.fetch(input, init);
+          }
+        });
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(200);
+      called.should.be.true;
+      should.not.exist(dispatcher);
+    });
+
+    // an agent is converted once and reused, so its connections are pooled
+    // across requests instead of each request building a new dispatcher
+    it('reuses the conversion of the same agent', async () => {
+      const agent = utils.makeAgent({rejectUnauthorized: false});
+      const otherAgent = utils.makeAgent({rejectUnauthorized: false});
+      // a compatible platform gets a `dispatcher`, others a `fetch` override
+      const converted = options => options.dispatcher ?? options.fetch;
+      const first = converted(convertAgent({agent}));
+      should.exist(first);
+      converted(convertAgent({agent})).should.equal(first);
+      converted(convertAgent({agent: otherAgent})).should.not.equal(first);
+    });
+  }
+
+  // test local self-signed cert; node uses an agent to accept it, karma
+  // launches the browser with `--ignore-certificate-errors`
+  it('can ping HTTPS test server', async () => {
+    let err;
+    let response;
+    const url = `https://${httpsHost}/ping`;
+    try {
+      const agent = utils.makeAgent({
+        rejectUnauthorized: false
+      });
+      response = await httpClient.get(url, {agent});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+  });
+
+  it('handles a get not found error', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/status/404`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.toUpperCase().should.contain('NOT FOUND');
+    should.exist(err.response);
+    should.exist(err.response.status);
+    should.exist(err.requestUrl);
+    err.requestUrl.should.equal(url);
+    err.response.status.should.equal(404);
+  });
+
+  it('handles a connection refused error', async () => {
+    let err;
+    let response;
+    // the intention here is to use an unused http port
+    // the port cannot be higher than 65535 (which is invalid)
+    const nonExistentResource = 'https://localhost:65535';
+    const expectedErrorCode = 'ECONNREFUSED';
+    // replace the default Accept with text/plain to get around
+    // possibly sending a CORS pre-flight
+    const headers = {Accept: 'text/plain'};
+    try {
+      response = await httpClient.get(nonExistentResource, {headers});
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(
+      response, 'Expected nonExistentResource to not return a response.');
+    should.exist(
+      err, 'Expected nonExistentResource to error.');
+    should.not.exist(
+      err.response,
+      'Expected nonExistentResource "err.response" to not exist.'
+    );
+    should.exist(
+      err.requestUrl,
+      'Expected nonExistentResource "err.requestUrl" to exist.'
+    );
+    err.requestUrl.should.equal(
+      nonExistentResource,
+      `Expected nonExistentResource "err.requestUrl" to be ` +
+        `${nonExistentResource}`
+    );
+    // ky wraps fetch's error in a `NetworkError`, and node's fetch places the
+    // system error in its own error's `cause`; chrome's fetch errors don't
+    // contain a code at all
+    if(isNode) {
+      let cause = err;
+      while(cause && !cause.code) {
+        cause = cause.cause;
+      }
+      should.exist(cause, 'Expected an error code in the "cause" chain.');
+      cause.code.should.equal(
+        expectedErrorCode,
+        `Expected nonExistentResource "err.code" to be ${expectedErrorCode}.`
+      );
+    }
+  });
+
+  if(!isNode) {
+    // browser check for endpoint without CORS
+    it('handles a CORS error', async () => {
+      let err;
+      let response;
+      const url = `http://${httpHost}/nocors`;
+      try {
+        response = await httpClient.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(response);
+      should.exist(err);
+      err.message.should.equal(
+        `Failed to fetch "${url}". Possible CORS error.`);
+      should.not.exist(err.response);
+      should.exist(err.requestUrl);
+      err.requestUrl.should.equal(url);
+    });
+  }
+
+  // a browser's `fetch` rejects a CORS failure with a bare
+  // `TypeError: Failed to fetch`; simulate it so node covers the message too
+  it('reports a possible CORS error for a failed fetch', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/ping`;
+    try {
+      response = await httpClient.get(url, {
+        fetch: async () => {
+          throw new TypeError('Failed to fetch');
+        },
+        // skip ky's retry backoff for a network error
+        retry: 0
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.equal(`Failed to fetch "${url}". Possible CORS error.`);
+    err.requestUrl.should.equal(url);
+  });
+
+  it('handles a TimeoutError error', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/delay/2`;
+    try {
+      response = await httpClient.get(url, {
+        timeout: 1000
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.equal(
+      `Request to "${url}" timed out.`);
+    should.not.exist(err.response);
+    should.exist(err.requestUrl);
+    err.requestUrl.should.equal(url);
+  });
+
+  it('successfully makes request with default json headers', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {accept} = response.data.headers;
+    accept.should.equal('application/ld+json, application/json');
+  });
+
+  it('successfully makes request with header that is overridden', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      response = await httpClient.get(url, {
+        headers: {
+          accept: 'text/html'
+        }
+      });
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {accept} = response.data.headers;
+    accept.should.equal('text/html');
+  });
+
+  // a lowercase name must replace the default `Accept`, not be combined
+  // with it
+  it('can use create() to provide default headers', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: {
+          accept: 'text/html'
+        }
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    response.status.should.equal(200);
+    const {accept} = response.data.headers;
+    accept.should.equal('text/html');
+  });
+
+  it('can use create() with a `Headers` instance', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: new Headers({Authorization: 'Bearer 12345'})
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    const {accept, authorization} = response.data.headers;
+    accept.should.equal('application/ld+json, application/json');
+    authorization.should.equal('Bearer 12345');
+  });
+
+  // like ky, an `undefined` value deletes the header rather than sending
+  // the string 'undefined'
+  it('can use create() to remove a default header', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: {
+          Accept: undefined
+        }
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    // fetch sends its own default when no `Accept` is set
+    response.data.headers.accept.should.equal('*/*');
+  });
+
+  it('can use create() to replace the default headers', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/headers`;
+    try {
+      const client = httpClient.create({
+        headers: replaceOption({Authorization: 'Bearer 12345'})
+      });
+      response = await client.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    response.status.should.equal(200);
+    should.exist(response.data);
+    should.exist(response.data.headers);
+    const {accept, authorization} = response.data.headers;
+    // fetch sends its own default when no `Accept` is set
+    accept.should.equal('*/*');
+    authorization.should.equal('Bearer 12345');
+  });
+
+  it('handles a successful get with JSON data', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/json`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+    const ct = response.headers.get('content-type');
+    should.exist(ct);
+    ct.includes('application/json').should.be.true;
+  });
+
+  it('handles a successful get with HTML data', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/html`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.not.exist(response.data);
+    should.exist(await response.text());
+    response.status.should.equal(200);
+    const ct = response.headers.get('content-type');
+    should.exist(ct);
+    ct.includes('text/html').should.be.true;
+  });
+
+  it('handles a successful direct get', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/json`;
+    try {
+      response = await httpClient(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(err);
+    should.exist(response);
+    should.exist(response.status);
+    should.exist(response.data);
+    response.status.should.equal(200);
+  });
+
+  it('handles a get not found error with JSON data', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/404`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.contain('404 Not Found');
+    should.exist(err.response);
+    should.exist(err.response.status);
+    should.exist(err.status);
+    err.status.should.equal(404);
+    should.exist(err.data);
+    err.data.should.be.an('object');
+    // these are API specific from the JSON body of the response
+    err.data.should.have.keys(['code', 'description']);
+    err.data.code.should.equal(404);
+    err.data.description.should.equal('Not Found');
+  });
+
+  it('uses the message from a JSON error body', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/error/message`;
+    try {
+      response = await httpClient.get(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.status.should.equal(400);
+    err.message.should.equal('Invalid widget.');
+  });
+
+  it('handles a direct get not found error with JSON data', async () => {
+    let err;
+    let response;
+    const url = `http://${httpHost}/404`;
+    try {
+      response = await httpClient(url);
+    } catch(e) {
+      err = e;
+    }
+    should.not.exist(response);
+    should.exist(err);
+    err.message.should.contain('404 Not Found');
+    should.exist(err.response);
+    should.exist(err.response.status);
+    should.exist(err.status);
+    err.status.should.equal(404);
+    should.exist(err.data);
+    err.data.should.be.an('object');
+    // these are API specific from the JSON body of the response
+    err.data.should.have.keys(['code', 'description']);
+    err.data.code.should.equal(404);
+    err.data.description.should.equal('Not Found');
+  });
+
+  if(isNode) {
+    describe('Nodejs execution context', () => {
+      it('handles a network error', async () => {
+        let err;
+        let response;
+        try {
+          response = await httpClient.get(
+            'http://localhost:9876/does-not-exist');
+        } catch(e) {
+          err = e;
+        }
+        should.not.exist(response);
+        should.exist(err);
+        err.message.should.satisfy(m =>
+          m.includes(
+            'request to http://localhost:9876/does-not-exist failed, reason: ' +
+            'connect ECONNREFUSED 127.0.0.1:9876') ||
+            // node 18.x +
+            m.includes('fetch failed') ||
+            // node 22+ / ky@2
+            m.includes(
+              'Request failed due to a network error: ' +
+              'GET http://localhost:9876/does-not-exist'));
+      });
+    });
+  } else {
+    describe('Browser execution context', () => {
+      it('should give a meaningful CORS error', async () => {
+        let err;
+        let response;
+        try {
+          response = await httpClient.get('https://example.com');
+        } catch(e) {
+          err = e;
+        }
+        should.not.exist(response);
+        should.exist(err);
+        // failed to fetch may commonly be due to an issue with CORS
+        err.message.should
+          .equal('Failed to fetch "https://example.com". Possible CORS error.');
+      });
+    });
+  }
+
+  describe('extend (custom client)', () => {
+    it('adds an Authorization header to all requests', async () => {
+      const accessToken = '12345';
+
+      const client = httpClient.extend({
+        headers: {Authorization: `Bearer ${accessToken}`}
+      });
+
+      let err;
+      let response;
+      const url = `http://${httpHost}/headers`;
+      try {
+        response = await client.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      should.exist(response.status);
+      should.exist(response.data);
+      should.exist(response.data.headers);
+      response.status.should.equal(200);
+      const {authorization: authzHeader} = response.data.headers;
+      authzHeader.should.equal('Bearer 12345');
+    });
+
+    it('replaces parent headers with `replaceOption()`', async () => {
+      const parent = httpClient.extend({
+        headers: {Authorization: 'Bearer 12345'}
+      });
+      const client = parent.extend({
+        headers: replaceOption({accept: 'text/plain'})
+      });
+
+      let err;
+      let response;
+      const url = `http://${httpHost}/headers`;
+      try {
+        response = await client.get(url);
+      } catch(e) {
+        err = e;
+      }
+      should.not.exist(err);
+      should.exist(response);
+      response.status.should.equal(200);
+      should.exist(response.data);
+      should.exist(response.data.headers);
+      const {accept, authorization} = response.data.headers;
+      accept.should.equal('text/plain');
+      should.not.exist(authorization);
+    });
+  });
+});
