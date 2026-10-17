@@ -28,7 +28,7 @@
   - Reading the body from `error.response` (`.json()`, `.text()`, etc.) now
     throws, since `ky@2` has already consumed it. Use `error.data` instead.
 - **BREAKING**: Update dependencies:
-  - `ky@2.1`.
+  - `ky@2.2`.
     - For most use cases the wrapped API is expected to be the same.
     - See `ky` docs for exported `ky` API changes.
     - Note that some errors can now have `cause` property chains and may use a
