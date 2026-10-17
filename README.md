@@ -60,8 +60,8 @@ const client = httpClient.extend({headers});
 import {Agent} from 'https';
 import {httpClient} from '@digitalbazaar/http-client';
 
-const agent = new https.Agent({rejectUnauthorized: false});
-const client = httpClient.extend({headers, agent});
+const agent = new Agent({rejectUnauthorized: false});
+const client = httpClient.extend({agent});
 
 // subsequent http calls will use the provided https Agent
 ```
