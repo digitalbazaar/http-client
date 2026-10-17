@@ -11,6 +11,12 @@
 - Keep `create()` headers given as a `Headers` instance. They were dropped.
 - Support `ky`'s `replaceOption()` for `headers` in `create()` and
   `extend()`. In `create()` it replaces the default headers.
+- Detect a possible CORS error in Firefox and WebKit, not just Chromium. The
+  `Failed to fetch "<url>". Possible CORS error.` message was produced by
+  matching Chromium's network-error text, so other engines fell through to a
+  generic error. Firefox and WebKit wording is now recognized as well, as are
+  the Chromium and WebKit variants with a host suffix, such as
+  `Failed to fetch (example.com)`.
 
 ### Changed
 - **BREAKING**: Revert CJS related workarounds from v3.0.0.
@@ -44,6 +50,25 @@
   - Test on Node.js >=22.
   - Update `engines.node` to `>=22`.
   - Update README requirements section.
+- **BREAKING**: Add an `exports` field.
+  - Only `.`, `./agentCompatibility.js`, and `./package.json` are importable;
+    other deep imports into the package are no longer reachable.
+- Switch testing from `mocha`/`chai`/`karma`/`c8` to `vitest`.
+  - `karma` is unmaintained; `vitest` covers Node.js tests, browser tests, and
+    coverage with a single tool and config.
+  - Browser tests now run via `playwright` instead of `karma`, in Chromium,
+    Firefox, and WebKit rather than Chromium alone.
+  - `npm test` now runs both the Node.js and browser suites; use
+    `npm run test:node` or `npm run test:browser` for one of them.
+  - `npm run test-karma` is replaced by `npm run test:browser`.
+  - npm scripts use `group:variant` names: `test:node`, `test:browser`,
+    `test:watch`, and `coverage:ci`.
+  - `npm run coverage-report` is removed; use
+    `npm run coverage -- --coverage.reporter=html`.
+  - Coverage now includes the browser suite, and reported totals shift
+    slightly because `istanbul` and `c8` count executable lines differently.
+    The `istanbul` provider is used rather than `v8` because v8 coverage is
+    gathered over CDP, which only Chromium supports.
 
 ### Removed
 - **BREAKING**: Remove CJS support.
